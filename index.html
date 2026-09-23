@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#4B1F5C">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>Estoque e CMV</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+:root{--brand:#4B1F5C;--brand-2:#8CC63F;--on-brand:#fff;--ink:#1C1A20;--muted:#6E6A75;--line:#E6E3EA;--bg:#F5F4F7;--paper:#fff;--ok:#2E7D4F;--warn:#B7601A;--bad:#B3261E;--ok-bg:#E7F3EC;--warn-bg:#FBEEE3;--bad-bg:#FBE8E7;--info-bg:#EEE9F1}
+*{box-sizing:border-box;margin:0;padding:0}html,body{height:100%}
+body{font-family:'Manrope',system-ui,sans-serif;background:var(--bg);color:var(--ink);font-variant-numeric:tabular-nums;-webkit-font-smoothing:antialiased}
+#app{max-width:480px;margin:0 auto;min-height:100vh;min-height:100dvh;display:flex;flex-direction:column;background:var(--bg)}
+.screen{display:none;flex:1;flex-direction:column;min-height:0}.screen.on{display:flex}
+header.top{background:var(--brand);color:var(--on-brand);padding:calc(14px + env(safe-area-inset-top)) 16px 12px;display:flex;align-items:center;gap:12px;flex:none}
+header.top .logo{width:34px;height:34px;border-radius:8px;background:var(--on-brand);color:var(--brand);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px;overflow:hidden;flex:none}
+header.top .logo img{width:100%;height:100%;object-fit:cover}
+header.top .who{flex:1;min-width:0}header.top .who b{display:block;font-size:16px;font-weight:700;line-height:1.2}header.top .who span{font-size:12px;opacity:.85}
+header.top select{font:inherit;font-size:13px;font-weight:600;color:var(--on-brand);background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.35);border-radius:8px;padding:6px 8px;max-width:150px}
+header.top select option,.login select option{color:#111;background:#fff}
+header.top button.back,header.top button.icon{background:none;border:0;color:var(--on-brand);font:inherit;font-size:22px;line-height:1;padding:0 4px;cursor:pointer}
+main{flex:1;overflow:auto;padding:16px 16px 24px}
+h1{font-size:22px;font-weight:800;letter-spacing:-.01em;margin-bottom:4px}h2{font-size:15px;font-weight:700;margin:22px 0 8px}
+p.sub{color:var(--muted);font-size:13px;margin-bottom:14px}
+.card{background:var(--paper);border-radius:14px;padding:14px 16px;margin-bottom:12px}
+.row{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--line)}.row:last-child{border-bottom:0}
+.row .l{min-width:0;flex:1}.row .l b{display:block;font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.row .l span{font-size:12px;color:var(--muted)}
+.row .r{text-align:right;font-weight:700;font-size:14px;white-space:nowrap}
+.chip{display:inline-block;font-size:11px;font-weight:700;padding:3px 8px;border-radius:999px;background:var(--info-bg);color:var(--brand)}
+.chip.ok{background:var(--ok-bg);color:var(--ok)}.chip.warn{background:var(--warn-bg);color:var(--warn)}.chip.bad{background:var(--bad-bg);color:var(--bad)}.chip.mute{background:var(--line);color:var(--muted)}
+.btn{display:block;width:100%;border:0;border-radius:12px;padding:15px;font:inherit;font-size:15px;font-weight:700;background:var(--brand);color:var(--on-brand);cursor:pointer}
+.btn.ghost{background:var(--paper);color:var(--brand);border:1.5px solid var(--brand)}.btn.soft{background:var(--info-bg);color:var(--brand)}
+.btn.sm{padding:9px 12px;font-size:13px;width:auto;display:inline-block;border-radius:9px}.btn+.btn{margin-top:10px}.btn:disabled{opacity:.45}.btn.danger{background:var(--bad-bg);color:var(--bad)}
+label.f{display:block;font-size:12px;font-weight:600;color:var(--muted);margin:14px 0 6px}
+input.f,select.f,textarea.f{width:100%;font:inherit;font-size:16px;padding:13px 14px;border:1.5px solid var(--line);border-radius:10px;background:var(--paper);color:var(--ink)}
+input.f:focus,select.f:focus,textarea.f:focus{outline:0;border-color:var(--brand)}
+.hint{font-size:12px;color:var(--muted);margin-top:6px}.err{color:var(--bad);font-size:12px;font-weight:600;margin-top:6px}
+.okbox{background:var(--ok-bg);color:var(--ok);border-radius:12px;padding:12px 14px;font-size:13px;font-weight:600;margin-bottom:12px}
+.warnbox{background:var(--warn-bg);color:var(--warn);border-radius:12px;padding:12px 14px;font-size:13px;font-weight:600;margin-bottom:12px}
+.badbox{background:var(--bad-bg);color:var(--bad);border-radius:12px;padding:12px 14px;font-size:13px;font-weight:600;margin-bottom:12px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.swatch{display:flex;gap:10px;align-items:center}.swatch input[type=color]{width:52px;height:44px;border:1.5px solid var(--line);border-radius:10px;padding:2px;background:#fff}
+.logo-drop{border:1.5px dashed var(--line);border-radius:12px;padding:18px;text-align:center;color:var(--muted);font-size:13px;background:var(--paper);cursor:pointer}.logo-drop img{max-height:70px;display:block;margin:0 auto 8px}
+nav.bottom{flex:none;display:flex;background:var(--paper);border-top:1px solid var(--line);padding:6px 0 max(8px,env(safe-area-inset-bottom))}
+nav.bottom button{flex:1;background:none;border:0;font:inherit;font-size:10px;font-weight:600;color:var(--muted);padding:6px 0 2px;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer}
+nav.bottom button i{width:20px;height:20px;border-radius:6px;background:var(--line);display:block}nav.bottom button.on{color:var(--brand)}nav.bottom button.on i{background:var(--brand)}
+.login{flex:1;display:flex;flex-direction:column;justify-content:center;padding:32px 28px;background:var(--brand);color:var(--on-brand);min-height:100vh}
+.login .mark{width:72px;height:72px;border-radius:18px;background:var(--on-brand);color:var(--brand);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:28px;margin-bottom:22px}
+.login h1{color:var(--on-brand);font-size:26px}.login p{opacity:.85;font-size:14px;margin-bottom:24px}
+.login label.f{color:rgba(255,255,255,.8)}.login input.f{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.3);color:#fff}.login input.f::placeholder{color:rgba(255,255,255,.6)}
+.login .btn{background:var(--on-brand);color:var(--brand);margin-top:18px}.login a{color:var(--on-brand);font-size:13px;opacity:.85;display:block;text-align:center;margin-top:16px}
+.login .err{color:#FFD6D6}
+#modal{position:fixed;inset:0;background:rgba(0,0,0,.4);display:none;z-index:30;align-items:center;justify-content:center;padding:20px}#modal .card{width:100%;max-width:440px;max-height:90vh;overflow:auto;margin:0}
+.toast{position:fixed;left:16px;right:16px;bottom:86px;max-width:448px;margin:0 auto;background:var(--ink);color:#fff;padding:12px 16px;border-radius:12px;font-size:13px;font-weight:600;opacity:0;transform:translateY(8px);transition:.2s;pointer-events:none;z-index:40}.toast.on{opacity:1;transform:none}
+.spin{display:inline-block;width:14px;height:14px;border:2px solid var(--line);border-top-color:var(--brand);border-radius:50%;animation:sp .8s linear infinite;vertical-align:middle}@keyframes sp{to{transform:rotate(360deg)}}
+table{width:100%;border-collapse:collapse;font-size:13px}th{font-size:11px;color:var(--muted);text-align:left;padding:6px 4px;font-weight:600;border-bottom:1px solid var(--line)}td{padding:8px 4px;border-bottom:1px solid var(--line);font-weight:600}
+.opt{display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--line);font-size:13px}.opt:last-child{border:0}
+</style>
+</head>
+<body>
+<div id="app">
+
+<section class="screen on" id="s-loading"><div class="login"><div class="mark">E</div><h1>Estoque e CMV</h1><p>Carregando…</p></div></section>
+
+<section class="screen" id="s-login">
+  <div class="login">
+    <div class="mark" id="loginMark">E</div>
+    <h1>Estoque e CMV</h1>
+    <p>Entre com o e-mail e a senha cadastrados pela sua empresa.</p>
+    <label class="f">E-mail</label><input class="f" id="lEmail" type="email" autocomplete="username" placeholder="voce@empresa.com">
+    <label class="f">Senha</label><input class="f" id="lSenha" type="password" autocomplete="current-password">
+    <div class="err" id="lErr"></div>
+    <button class="btn" id="lBtn" onclick="entrar()">Entrar</button>
+    <a href="#" onclick="esqueci();return false">Esqueci a senha</a>
+  </div>
+</section>
+
+<section class="screen" id="s-semficha">
+  <div class="login"><div class="mark">!</div><h1>Sem acesso</h1><p id="semFichaTxt">Seu login existe, mas ainda não foi vinculado a uma empresa. Peça ao administrador.</p><button class="btn" onclick="sair()">Sair</button></div>
+</section>
+
+<!-- ADMIN -->
+<section class="screen" id="s-admin">
+  <header class="top"><div class="logo" style="background:#fff;color:#222">◆</div><div class="who"><b>Administração</b><span id="admSub">Empresas</span></div><button class="icon" onclick="sair()" title="Sair">⎋</button></header>
+  <main id="admMain"></main>
+  <nav class="bottom" id="navAdm"></nav>
+</section>
+
+<section class="screen" id="s-empresa">
+  <header class="top"><button class="back" onclick="go('s-admin')">‹</button><div class="who"><b id="empTit">Empresa</b><span id="empSub"></span></div></header>
+  <main id="empMain"></main>
+  <nav class="bottom"></nav>
+</section>
+
+<section class="screen" id="s-teste">
+  <header class="top"><button class="back" onclick="go('s-admin')">‹</button><div class="who"><b>Teste de permissões</b><span>contra o banco real</span></div></header>
+  <main id="testeMain"></main>
+  <nav class="bottom"></nav>
+</section>
+
+<!-- GESTOR / LÍDER (fase 2) -->
+<section class="screen" id="s-inicio">
+  <header class="top"><div class="logo" id="hdrLogo">E</div><div class="who"><b id="hdrName"></b><span id="hdrRole"></span></div><button class="icon" onclick="sair()" title="Sair">⎋</button></header>
+  <main id="inicioMain"></main>
+  <nav class="bottom"></nav>
+</section>
+
+<div id="modal"><div class="card" id="modalBox"></div></div>
+<div class="toast" id="toast"></div>
+</div>
+
+<script type="module">
+import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, sendPasswordResetEmail, createUserWithEmailAndPassword, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc, collection, getDocs, writeBatch, serverTimestamp, query, where } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCS2HrK73irscm1R94BYLCi_gsRmjRIbWs",
+  authDomain: "estoque-asa.firebaseapp.com",
+  projectId: "estoque-asa",
+  storageBucket: "estoque-asa.firebasestorage.app",
+  messagingSenderId: "949132517623",
+  appId: "1:949132517623:web:1d2d0967f7441c9abc33f2"
+};
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+await setPersistence(auth, browserLocalPersistence);
+
+/* ---------- utilidades ---------- */
+const $ = id => document.getElementById(id);
+const col = (E, sub) => collection(db, 'empresas', E, sub);
+const fmt = n => 'R$ ' + (n || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const q = s => s ? parseFloat(String(s).replace(/\./g, '').replace(',', '.')) || 0 : 0;
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+function toast(t) { const e = $('toast'); e.textContent = t; e.classList.add('on'); clearTimeout(e._t); e._t = setTimeout(() => e.classList.remove('on'), 3200); }
+function go(id) { document.querySelectorAll('.screen').forEach(s => s.classList.remove('on')); $(id).classList.add('on'); window.scrollTo(0, 0); (RENDER[id] || (() => {}))(); }
+let modalCb = null;
+function modal(o) {
+  modalCb = o.ok;
+  const f = (o.fields || []).map(x => `<label class="f">${esc(x.label)}</label>` + (x.type === 'select'
+    ? `<select class="f" data-k="${x.k}">${x.options.map(op => `<option value="${esc(op.v ?? op)}" ${(op.v ?? op) == x.value ? 'selected' : ''}>${esc(op.t ?? op)}</option>`).join('')}</select>`
+    : x.type === 'textarea' ? `<textarea class="f" rows="2" data-k="${x.k}" placeholder="${esc(x.ph || '')}">${esc(x.value || '')}</textarea>`
+    : `<input class="f" type="${x.type === 'password' ? 'password' : x.type === 'email' ? 'email' : 'text'}" data-k="${x.k}" value="${esc(x.value ?? '')}" placeholder="${esc(x.ph || '')}">`)).join('');
+  $('modalBox').innerHTML = `<h2 style="margin-top:0">${esc(o.title)}</h2>${o.text ? `<p class="sub">${o.text}</p>` : ''}${f}<div class="err" id="modalErr"></div><div style="display:flex;gap:8px;margin-top:16px"><button class="btn ghost" id="modalCancel">Cancelar</button><button class="btn ${o.danger ? 'danger' : ''}" id="modalOk">${esc(o.okLabel || 'Confirmar')}</button></div>`;
+  $('modalCancel').onclick = modalClose; $('modalOk').onclick = modalSubmit;
+  $('modal').style.display = 'flex';
+}
+function modalClose() { $('modal').style.display = 'none'; modalCb = null; }
+async function modalSubmit() {
+  const out = {}; $('modalBox').querySelectorAll('[data-k]').forEach(el => out[el.dataset.k] = el.value);
+  const btn = $('modalOk'); btn.disabled = true;
+  try { const err = modalCb ? await modalCb(out) : null; if (err) { $('modalErr').textContent = err; btn.disabled = false; return; } modalClose(); }
+  catch (e) { $('modalErr').textContent = mensagemErro(e); btn.disabled = false; }
+}
+function mensagemErro(e) {
+  const c = e && e.code || '';
+  if (c.includes('permission-denied')) return 'Sem permissão para esta ação (negado pelo servidor).';
+  if (c.includes('auth/invalid-credential') || c.includes('auth/wrong-password') || c.includes('auth/user-not-found')) return 'E-mail ou senha incorretos.';
+  if (c.includes('auth/email-already-in-use')) return 'Este e-mail já tem login.';
+  if (c.includes('auth/invalid-email')) return 'E-mail inválido.';
+  if (c.includes('auth/too-many-requests')) return 'Muitas tentativas. Aguarde alguns minutos.';
+  if (c.includes('unavailable')) return 'Sem conexão com o servidor.';
+  return (e && e.message) || String(e);
+}
+
+/* ---------- sessão ---------- */
+let user = null, ficha = null, EMPRESA = null, empresaAtual = null;
+window.entrar = async () => {
+  $('lErr').textContent = ''; $('lBtn').disabled = true;
+  try { await signInWithEmailAndPassword(auth, $('lEmail').value.trim(), $('lSenha').value); }
+  catch (e) { $('lErr').textContent = mensagemErro(e); }
+  $('lBtn').disabled = false;
+};
+window.esqueci = async () => {
+  const em = $('lEmail').value.trim(); if (!em) { $('lErr').textContent = 'Digite o e-mail e toque em "Esqueci a senha".'; return; }
+  try { await sendPasswordResetEmail(auth, em); toast('Enviamos um e-mail para redefinir a senha.'); } catch (e) { $('lErr').textContent = mensagemErro(e); }
+};
+window.sair = async () => { await signOut(auth); };
+onAuthStateChanged(auth, async u => {
+  user = u;
+  if (!u) { ficha = null; go('s-login'); return; }
+  go('s-loading');
+  try {
+    const snap = await getDoc(doc(db, 'usuarios', u.uid));
+    if (!snap.exists()) { $('semFichaTxt').textContent = 'Seu login existe, mas ainda não foi vinculado a uma empresa. Peça ao administrador.'; go('s-semficha'); return; }
+    ficha = snap.data();
+    if (ficha.ativo === false) { $('semFichaTxt').textContent = 'Seu acesso está desativado. Fale com o gestor.'; go('s-semficha'); return; }
+    if (ficha.perfil === 'ADMIN') { await carregarEmpresas(); go('s-admin'); }
+    else { await carregarEmpresa(ficha.empresaId); go('s-inicio'); }
+  } catch (e) { $('semFichaTxt').textContent = 'Erro ao carregar seu acesso: ' + mensagemErro(e); go('s-semficha'); }
+});
+
+/* ---------- empresas ---------- */
+let EMPRESAS = [];
+async function carregarEmpresas() { const s = await getDocs(collection(db, 'empresas')); EMPRESAS = s.docs.map(d => ({ id: d.id, ...d.data() })); }
+async function carregarEmpresa(id) {
+  if (!id) { EMPRESA = null; return; }
+  const s = await getDoc(doc(db, 'empresas', id)); EMPRESA = s.exists() ? { id: s.id, ...s.data() } : null; empresaAtual = id;
+  if (EMPRESA) { document.documentElement.style.setProperty('--brand', EMPRESA.c1 || '#4B1F5C'); document.documentElement.style.setProperty('--brand-2', EMPRESA.c2 || '#8CC63F'); }
+}
+async function contagens(id) { const out = {}; for (const c of ['lojas', 'produtos', 'usuarios']) { out[c] = c === 'usuarios' ? (await getDocs(query(collection(db, 'usuarios'), where('empresaId', '==', id)))).size : (await getDocs(collection(db, 'empresas', id, c))).size; } return out; }
+
+function renderNavAdm(cur) { document.querySelectorAll('#s-admin nav.bottom, #s-empresa nav.bottom, #s-teste nav.bottom').forEach(nv => { nv.innerHTML = [['s-admin', 'Empresas'], ['s-teste', 'Teste']].map(([id, l]) => `<button class="${id === cur ? 'on' : ''}" data-go="${id}"><i></i>${l}</button>`).join(''); nv.querySelectorAll('button').forEach(b => b.onclick = () => go(b.dataset.go)); }); }
+
+async function renderAdmin() {
+  renderNavAdm('s-admin'); const m = $('admMain'); m.innerHTML = '<p class="sub"><span class="spin"></span> carregando…</p>';
+  await carregarEmpresas();
+  const cards = [];
+  for (const e of EMPRESAS) { const c = await contagens(e.id); cards.push(`<div class="card"><div class="row"><div class="l"><b>${esc(e.nome)}</b><span>${c.lojas} loja(s) · ${c.produtos} produtos · ${c.usuarios} usuário(s)</span></div><div class="r"><span style="display:inline-block;width:18px;height:18px;border-radius:5px;background:${esc(e.c1 || '#4B1F5C')}"></span></div></div><div style="display:flex;gap:8px;padding-top:10px;flex-wrap:wrap"><button class="btn sm" data-abrir="${e.id}">Abrir</button></div></div>`); }
+  m.innerHTML = `<h1>Empresas</h1><p class="sub">Logado como ${esc(ficha.nome || user.email)} (admin).</p>${cards.join('') || '<div class="card"><div class="hint">Nenhuma empresa ainda. Crie a primeira.</div></div>'}<button class="btn" id="btnNovaEmp">+ Nova empresa</button>`;
+  m.querySelectorAll('[data-abrir]').forEach(b => b.onclick = async () => { await carregarEmpresa(b.dataset.abrir); go('s-empresa'); });
+  $('btnNovaEmp').onclick = () => modal({ title: 'Nova empresa', fields: [{ k: 'nome', label: 'Nome', ph: 'ex.: ASA' }, { k: 'c1', label: 'Cor principal (hex)', value: '#4B1F5C' }, { k: 'c2', label: 'Cor secundária (hex)', value: '#8CC63F' }, { k: 'limite', label: 'Limite de alerta de variação na contagem (%)', value: '50' }], okLabel: 'Criar', ok: async v => {
+    const nome = v.nome.trim(); if (!nome) return 'Informe o nome.'; if (EMPRESAS.some(e => e.nome.toLowerCase() === nome.toLowerCase())) return 'Já existe empresa com esse nome.';
+    const id = nome.toLowerCase().normalize('NFD').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || ('emp-' + Date.now());
+    await setDoc(doc(db, 'empresas', id), { nome, c1: v.c1 || '#4B1F5C', c2: v.c2 || '#8CC63F', limiteVariacao: q(v.limite) || 50, criadoEm: serverTimestamp(), criadoPor: user.uid });
+    for (const mp of ['Evento/teste (baixa de empréstimo)', 'Cortesia a franquia (baixa de empréstimo)']) await setDoc(doc(collection(db, 'empresas', id, 'motivos')), { tipo: 'perda', nome: mp, sistema: true });
+    for (const me of ['EMPRÉSTIMO', 'DEVOLUÇÃO']) await setDoc(doc(collection(db, 'empresas', id, 'motivos')), { tipo: 'emprestimo', nome: me, sistema: false });
+    toast(nome + ' criada. Agora importe a planilha padrão.'); await carregarEmpresa(id); go('s-empresa'); } });
+}
+
+/* ---------- tela da empresa ---------- */
+let empTab = 'resumo';
+async function renderEmpresa() {
+  renderNavAdm('s-admin'); if (!EMPRESA) return go('s-admin');
+  $('empTit').textContent = EMPRESA.nome; $('empSub').textContent = 'admin'; const m = $('empMain');
+  const tabs = [['resumo', 'Resumo'], ['lojas', 'Lojas'], ['usuarios', 'Usuários'], ['base', 'Base']];
+  m.innerHTML = `<div style="display:flex;background:var(--line);border-radius:10px;padding:3px;margin-bottom:12px">${tabs.map(([k, t]) => `<button data-tab="${k}" style="flex:1;border:0;background:${k === empTab ? 'var(--paper)' : 'none'};font:inherit;font-size:13px;font-weight:700;padding:8px;border-radius:8px;color:${k === empTab ? 'var(--brand)' : 'var(--muted)'}">${t}</button>`).join('')}</div><div id="empBody"><p class="sub"><span class="spin"></span></p></div>`;
+  m.querySelectorAll('[data-tab]').forEach(b => b.onclick = () => { empTab = b.dataset.tab; renderEmpresa(); });
+  const body = $('empBody');
+  if (empTab === 'resumo') {
+    const c = await contagens(EMPRESA.id);
+    body.innerHTML = `<div class="card"><div class="row"><div class="l"><b>${esc(EMPRESA.nome)}</b><span>${c.lojas} loja(s) · ${c.produtos} produtos · ${c.usuarios} usuário(s) · limite de variação ${EMPRESA.limiteVariacao || 50} %</span></div></div><div style="display:flex;gap:8px;padding-top:10px;flex-wrap:wrap"><button class="btn sm" id="btnEditEmp">Editar nome e cores</button><button class="btn sm ghost" id="btnLogo">Logo</button></div></div>
+    <div class="card"><b style="font-size:14px">Ordem recomendada</b><div class="hint" style="margin-top:6px">1. Importar a planilha padrão (aba Base) — cria lojas, categorias, produtos, fornecedores, motivos e o estoque inicial.<br>2. Criar os usuários (aba Usuários): gestor e líderes.<br>3. Rodar o Teste de permissões (aba Teste, no rodapé).</div></div>`;
+    $('btnEditEmp').onclick = () => modal({ title: 'Editar empresa', fields: [{ k: 'nome', label: 'Nome', value: EMPRESA.nome }, { k: 'c1', label: 'Cor principal (hex)', value: EMPRESA.c1 || '#4B1F5C' }, { k: 'c2', label: 'Cor secundária (hex)', value: EMPRESA.c2 || '#8CC63F' }, { k: 'limite', label: 'Limite de variação (%)', value: String(EMPRESA.limiteVariacao || 50) }], okLabel: 'Salvar', ok: async v => { if (!v.nome.trim()) return 'Informe o nome.'; await updateDoc(doc(db, 'empresas', EMPRESA.id), { nome: v.nome.trim(), c1: v.c1, c2: v.c2, limiteVariacao: q(v.limite) || 50 }); await carregarEmpresa(EMPRESA.id); toast('Empresa atualizada.'); renderEmpresa(); } });
+    $('btnLogo').onclick = () => { const inp = document.createElement('input'); inp.type = 'file'; inp.accept = 'image/*'; inp.onchange = () => { const f = inp.files[0]; if (!f) return; if (f.size > 300000) return toast('Use uma imagem de até 300 KB.'); const r = new FileReader(); r.onload = async e => { await updateDoc(doc(db, 'empresas', EMPRESA.id), { logo: e.target.result }); toast('Logo salvo.'); await carregarEmpresa(EMPRESA.id); }; r.readAsDataURL(f); }; inp.click(); };
+  }
+  if (empTab === 'lojas') {
+    const s = await getDocs(collection(db, 'empresas', EMPRESA.id, 'lojas')); const lojas = s.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => a.nome.localeCompare(b.nome));
+    body.innerHTML = `<div class="card">${lojas.map(l => `<div class="row"><div class="l"><b>${esc(l.nome)}</b><span>${esc(l.tipo)}</span></div><div class="r"><button class="btn sm ghost" data-edit="${l.id}">Editar</button></div></div>`).join('') || '<div class="hint">Nenhuma loja. Importe a planilha padrão ou crie abaixo.</div>'}</div><button class="btn soft" id="btnNovaLoja">+ Nova loja</button>`;
+    const form = (l) => modal({ title: l ? 'Editar loja' : 'Nova loja', fields: [{ k: 'nome', label: 'Nome', value: l ? l.nome : '' }, { k: 'tipo', label: 'Classificação', type: 'select', options: ['PRÓPRIA', 'FRANQUIA', 'EVENTO/TESTE'], value: l ? l.tipo : 'PRÓPRIA' }, ...(l ? [] : [{ k: 'copia', label: 'Copiar lista de produtos de (só se própria)', type: 'select', options: [{ v: '', t: '— nenhuma —' }, ...lojas.filter(x => x.tipo === 'PRÓPRIA').map(x => ({ v: x.id, t: x.nome }))], value: '' }])], okLabel: 'Salvar', ok: async v => {
+      const nome = v.nome.trim(); if (!nome) return 'Informe o nome.'; if (lojas.some(x => x.nome.toLowerCase() === nome.toLowerCase() && (!l || x.id !== l.id))) return 'Já existe loja com esse nome.';
+      if (l) { await updateDoc(doc(db, 'empresas', EMPRESA.id, 'lojas', l.id), { nome, tipo: v.tipo }); }
+      else { const ref = doc(collection(db, 'empresas', EMPRESA.id, 'lojas')); await setDoc(ref, { nome, tipo: v.tipo, ativa: true });
+        if (v.tipo === 'PRÓPRIA' && v.copia) { const ps = await getDocs(collection(db, 'empresas', EMPRESA.id, 'produtos')); const b = writeBatch(db); let n = 0; ps.docs.forEach(p => { if ((p.data().lojas || {})[v.copia]) { b.update(p.ref, { ['lojas.' + ref.id]: true }); n++; } }); await b.commit(); toast(`Loja criada com ${n} produtos copiados.`); } else toast('Loja criada.'); }
+      renderEmpresa(); } });
+    $('btnNovaLoja').onclick = () => form(null); body.querySelectorAll('[data-edit]').forEach(b => b.onclick = () => form(lojas.find(x => x.id === b.dataset.edit)));
+  }
+  if (empTab === 'usuarios') {
+    const [us, ls] = await Promise.all([getDocs(query(collection(db, 'usuarios'), where('empresaId', '==', EMPRESA.id))), getDocs(collection(db, 'empresas', EMPRESA.id, 'lojas'))]);
+    const lojas = ls.docs.map(d => ({ id: d.id, ...d.data() })).filter(l => l.tipo === 'PRÓPRIA').sort((a, b) => a.nome.localeCompare(b.nome)); const nomeLoja = id => (lojas.find(l => l.id === id) || {}).nome || id;
+    const users = us.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => (a.nome || '').localeCompare(b.nome || ''));
+    body.innerHTML = `<div class="card">${users.map(u => `<div class="row"><div class="l"><b>${esc(u.nome)}</b><span>${esc(u.email)} · ${u.perfil === 'LIDER' ? 'líder · ' + (u.lojas || []).map(nomeLoja).join(', ') : 'gestor'}</span></div><div class="r"><span class="chip ${u.ativo ? 'ok' : 'mute'}">${u.ativo ? 'ativo' : 'inativo'}</span><br><button class="btn sm ghost" style="margin-top:4px" data-edit="${u.id}">Editar</button></div></div>`).join('') || '<div class="hint">Nenhum usuário. Crie o gestor e os líderes.</div>'}</div><button class="btn" id="btnNovoUser">+ Novo usuário</button><div class="hint">O usuário recebe um e-mail para definir a própria senha.</div>`;
+    const form = (u) => modal({ title: u ? 'Editar usuário' : 'Novo usuário', fields: [{ k: 'nome', label: 'Nome', value: u ? u.nome : '' }, { k: 'email', label: 'E-mail', type: 'email', value: u ? u.email : '' }, { k: 'perfil', label: 'Perfil', type: 'select', options: ['LIDER', 'GESTOR'], value: u ? u.perfil : 'LIDER' }, ...lojas.map(l => ({ k: 'l_' + l.id, label: 'Acesso a ' + l.nome + '? (líder)', type: 'select', options: ['SIM', 'NÃO'], value: u && (u.lojas || []).includes(l.id) ? 'SIM' : 'NÃO' })), { k: 'ativo', label: 'Situação', type: 'select', options: ['ATIVO', 'INATIVO'], value: u && u.ativo === false ? 'INATIVO' : 'ATIVO' }], okLabel: u ? 'Salvar' : 'Criar e enviar e-mail', ok: async v => {
+      const nome = v.nome.trim(), email = v.email.trim().toLowerCase(); if (!nome) return 'Informe o nome.'; if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return 'E-mail inválido.';
+      const sel = lojas.filter(l => v['l_' + l.id] === 'SIM').map(l => l.id); if (v.perfil === 'LIDER' && !sel.length) return 'Líder precisa de pelo menos uma loja.';
+      const dados = { nome, email, perfil: v.perfil, lojas: v.perfil === 'LIDER' ? sel : [], ativo: v.ativo === 'ATIVO', empresaId: EMPRESA.id };
+      if (u) { await updateDoc(doc(db, 'usuarios', u.id), dados); toast('Usuário atualizado.'); }
+      else { if (users.some(x => x.email === email)) return 'Este e-mail já está cadastrado nesta empresa.'; const uid = await criarLogin(email); await setDoc(doc(db, 'usuarios', uid), { ...dados, criadoEm: serverTimestamp(), criadoPor: user.uid }); await sendPasswordResetEmail(auth, email); toast('Usuário criado. E-mail para definir a senha enviado a ' + email + '.'); }
+      renderEmpresa(); } });
+    $('btnNovoUser').onclick = () => form(null); body.querySelectorAll('[data-edit]').forEach(b => b.onclick = () => form(users.find(x => x.id === b.dataset.edit)));
+  }
+  if (empTab === 'base') {
+    body.innerHTML = `<div class="card"><b style="font-size:14px">Importar planilha padrão</b><div class="hint" style="margin:6px 0 10px">Abas: Lojas, Categorias_compra, Categorias_produto, Produtos (Nome · Un/medida · Custo · Categoria · uma coluna SIM/NÃO por loja própria), Fornecedores, Motivos_perda, Motivos_emprestimo, Estoque_inicial. A aba Usuarios é ignorada: crie os usuários na aba Usuários.</div><div class="logo-drop" id="dropXls"><span style="color:var(--brand);font-weight:700">Escolher planilha (.xlsx)</span></div><input type="file" id="xlsFile" accept=".xlsx" style="display:none"><div id="impDiff" style="margin-top:14px"></div></div>`;
+    $('dropXls').onclick = () => $('xlsFile').click(); $('xlsFile').onchange = () => lerPlanilha($('xlsFile').files[0]);
+  }
+}
+// cria o login numa instância secundária para não derrubar a sessão do admin
+async function criarLogin(email) {
+  const sec = getApps().find(a => a.name === 'sec') || initializeApp(firebaseConfig, 'sec'); const a2 = getAuth(sec);
+  const senhaTemp = 'Tmp!' + Math.random().toString(36).slice(2, 10) + Math.random().toString(36).slice(2, 6).toUpperCase();
+  const cred = await createUserWithEmailAndPassword(a2, email, senhaTemp); const uid = cred.user.uid; await signOut(a2); return uid;
+}
+
+/* ---------- importação da planilha padrão ---------- */
+const S = v => String(v ?? '').trim();
+async function lerPlanilha(f) {
+  if (!f) return; const out = $('impDiff'); out.innerHTML = '<p class="sub"><span class="spin"></span> lendo…</p>';
+  try {
+    const wb = XLSX.read(new Uint8Array(await f.arrayBuffer()), { type: 'array' });
+    const sheet = n => wb.Sheets[n] ? XLSX.utils.sheet_to_json(wb.Sheets[n], { defval: '' }) : null;
+    const erros = [], avisos = [];
+    const lojasX = (sheet('Lojas') || []).filter(r => S(r['Nome'])).map(r => ({ nome: S(r['Nome']), tipo: S(r['Classificação']).toUpperCase() || 'PRÓPRIA' }));
+    if (!lojasX.length) erros.push('Aba Lojas vazia ou ausente.');
+    lojasX.forEach(l => { if (!['PRÓPRIA', 'FRANQUIA', 'EVENTO/TESTE'].includes(l.tipo)) erros.push(`Loja ${l.nome}: classificação "${l.tipo}" inválida.`); });
+    const proprias = lojasX.filter(l => l.tipo === 'PRÓPRIA').map(l => l.nome);
+    const catC = (sheet('Categorias_compra') || []).filter(r => S(r['Nome'])).map(r => ({ nome: S(r['Nome']).toUpperCase(), compoeCmv: S(r['Compõe CMV']).toUpperCase() === 'SIM' }));
+    const catP = (sheet('Categorias_produto') || []).filter(r => S(r['Nome'])).map(r => S(r['Nome']));
+    const prodRows = sheet('Produtos') || []; if (!prodRows.length) erros.push('Aba Produtos vazia ou ausente.');
+    const cols = Object.keys(prodRows[0] || {}); for (const c of ['Nome', 'Un/medida', 'Custo unitário (R$)', 'Categoria de produto']) if (prodRows.length && !cols.includes(c)) erros.push(`Coluna "${c}" não encontrada em Produtos.`);
+    const colsLoja = cols.filter(c => proprias.includes(c)); proprias.forEach(p => { if (!colsLoja.includes(p)) avisos.push(`Produtos: sem coluna para a loja própria "${p}" (nenhum produto ficará SIM nela).`); });
+    const prods = prodRows.filter(r => S(r['Nome'])).map(r => ({ nome: S(r['Nome']).toUpperCase(), un: S(r['Un/medida']), custo: typeof r['Custo unitário (R$)'] === 'number' ? r['Custo unitário (R$)'] : q(r['Custo unitário (R$)']), cat: S(r['Categoria de produto']), lojas: colsLoja.filter(c => S(r[c]).toUpperCase() === 'SIM') }));
+    const nomes = new Set(); prods.forEach(p => { if (!['kg', 'un', 'L'].includes(p.un)) erros.push(`${p.nome}: unidade "${p.un}" inválida (kg, un ou L).`); if (!p.cat) erros.push(`${p.nome}: sem categoria.`); if (nomes.has(p.nome)) erros.push(`${p.nome}: produto repetido.`); nomes.add(p.nome); if (!p.custo && p.lojas.length) avisos.push(`${p.nome}: custo zero, marcado SIM em ${p.lojas.join(', ')}.`); });
+    const forn = (sheet('Fornecedores') || []).filter(r => S(r['Nome'])).map(r => ({ nome: S(r['Nome']).toUpperCase(), cnpj: S(r['CNPJ']) }));
+    const mp = (sheet('Motivos_perda') || []).filter(r => S(r['Nome']) && !/sistema/i.test(S(r['Nome']))).map(r => S(r['Nome']).toUpperCase());
+    const me = (sheet('Motivos_emprestimo') || []).filter(r => S(r['Nome'])).map(r => S(r['Nome']).toUpperCase());
+    const est = (sheet('Estoque_inicial') || []).filter(r => S(r['Loja']) && S(r['Produto'])).map(r => ({ loja: S(r['Loja']), data: S(r['Data']), prod: S(r['Produto']).toUpperCase(), qtd: typeof r['Quantidade'] === 'number' ? r['Quantidade'] : q(r['Quantidade']) }));
+    est.forEach(x => { if (!proprias.includes(x.loja)) erros.push(`Estoque_inicial: loja "${x.loja}" não é própria ou não existe.`); else if (!nomes.has(x.prod)) erros.push(`Estoque_inicial: produto "${x.prod}" não está em Produtos.`); else if (x.qtd && !prods.find(p => p.nome === x.prod).lojas.includes(x.loja)) avisos.push(`Estoque_inicial: ${x.prod} tem quantidade em ${x.loja} mas está NÃO nessa loja (ficará fora da contagem).`); });
+    const datasEst = [...new Set(est.map(x => x.data))]; if (datasEst.length > 1) erros.push('Estoque_inicial com mais de uma data: use uma só (a da contagem inicial).');
+    // já existe base?
+    const jaTem = (await getDocs(collection(db, 'empresas', EMPRESA.id, 'produtos'))).size;
+    const resumo = `<div class="card"><b style="font-size:14px">Prévia</b><div class="hint" style="margin-top:6px">${lojasX.length} lojas (${proprias.length} próprias) · ${catC.length} categorias de compra · ${catP.length} categorias de produto · ${prods.length} produtos · ${forn.length} fornecedores · ${mp.length + me.length} motivos · ${est.length} linhas de estoque inicial${datasEst[0] ? ' (' + datasEst[0] + ')' : ''}</div></div>`;
+    out.innerHTML = (erros.length ? `<div class="badbox">${erros.length} erro(s). Corrija e suba de novo:<br>${erros.slice(0, 12).map(esc).join('<br>')}${erros.length > 12 ? '<br>…' : ''}</div>` : '<div class="okbox">Planilha válida.</div>') + (avisos.length ? `<div class="warnbox">${avisos.length} aviso(s):<br>${avisos.slice(0, 8).map(esc).join('<br>')}${avisos.length > 8 ? '<br>…' : ''}</div>` : '') + resumo + (jaTem ? `<div class="warnbox">Esta empresa já tem ${jaTem} produtos. A importação inicial só pode ser feita em empresa vazia; para atualizar a base use a função "Atualizar base" (fase 3).</div>` : '') + `<button class="btn" id="btnImportar" ${erros.length || jaTem ? 'disabled' : ''}>Importar agora</button>`;
+    if (!erros.length && !jaTem) $('btnImportar').onclick = () => importar({ lojasX, catC, catP, prods, forn, mp, me, est, dataEst: datasEst[0] });
+  } catch (e) { out.innerHTML = `<div class="badbox">${esc(mensagemErro(e))}</div>`; }
+}
+async function importar(d) {
+  const out = $('impDiff'); out.innerHTML = '<p class="sub"><span class="spin"></span> gravando…</p>'; const E = EMPRESA.id;
+  try {
+    const lojaId = {}; let b = writeBatch(db), n = 0; const flush = async () => { if (n) { await b.commit(); b = writeBatch(db); n = 0; } }; const add = (ref, data) => { b.set(ref, data); n++; return n >= 400 ? flush() : null; };
+    for (const l of d.lojasX) { const ref = doc(col(E, 'lojas')); lojaId[l.nome] = ref.id; await add(ref, { nome: l.nome, tipo: l.tipo, ativa: true }); }
+    for (const c of d.catC) await add(doc(col(E, 'categoriasCompra')), c);
+    for (const c of d.catP) await add(doc(col(E, 'categoriasProduto')), { nome: c });
+    const prodId = {};
+    for (const p of d.prods) { const ref = doc(col(E, 'produtos')); prodId[p.nome] = ref.id; const lojas = {}; p.lojas.forEach(ln => lojas[lojaId[ln]] = true); await add(ref, { nome: p.nome, un: p.un, custo: p.custo, cat: p.cat, lojas, custoDesde: d.dataEst || null }); }
+    for (const f of d.forn) await add(doc(col(E, 'fornecedores')), f);
+    for (const m of d.mp) await add(doc(col(E, 'motivos')), { tipo: 'perda', nome: m, sistema: false });
+    for (const m of d.me) if (!['EMPRÉSTIMO', 'DEVOLUÇÃO'].includes(m)) await add(doc(col(E, 'motivos')), { tipo: 'emprestimo', nome: m, sistema: false });
+    await flush();
+    // estoque inicial: uma contagem fechada por loja própria, com custo congelado
+    const data = d.dataEst ? d.dataEst.split('/').reverse().join('-') : new Date().toISOString().slice(0, 10);
+    for (const ln of d.lojasX.filter(l => l.tipo === 'PRÓPRIA').map(l => l.nome)) {
+      const itens = {}; d.prods.filter(p => p.lojas.includes(ln)).forEach(p => { itens[prodId[p.nome]] = { parcelas: [0], custo: p.custo }; });
+      d.est.filter(x => x.loja === ln && x.qtd && itens[prodId[x.prod]]).forEach(x => { itens[prodId[x.prod]].parcelas = [x.qtd]; });
+      await setDoc(doc(db, E, 'contagens', lojaId[ln] + '_' + data), { lojaId: lojaId[ln], data, status: 'fechada', inicial: true, itens, fechadaPor: user.uid, fechadaEm: serverTimestamp(), autor: user.uid });
+    }
+    out.innerHTML = `<div class="okbox">Importado: ${d.lojasX.length} lojas, ${d.prods.length} produtos, contagem inicial de ${data.split('-').reverse().join('/')} nas lojas próprias.</div>`; toast('Base importada.');
+  } catch (e) { out.innerHTML = `<div class="badbox">Falha: ${esc(mensagemErro(e))}. Nada parcial deve ser usado; me avise.</div>`; }
+}
+/* ---------- teste de permissões ---------- */
+async function renderTeste() {
+  renderNavAdm('s-teste'); const m = $('testeMain');
+  m.innerHTML = `<h1>Teste de permissões</h1><p class="sub">Entre como cada usuário (líder, gestor) e toque em "Rodar". O app tenta operações que o perfil não pode fazer e mostra se o servidor negou. Como admin, tudo é permitido.</p><div class="card"><div class="hint">Logado como <b>${esc(ficha.nome || user.email)}</b> · perfil <b>${esc(ficha.perfil)}</b></div></div><button class="btn" id="btnRodar">Rodar teste</button><div id="testeOut" style="margin-top:12px"></div>`;
+  $('btnRodar').onclick = rodarTeste;
+}
+async function rodarTeste() {
+  const out = $('testeOut'); out.innerHTML = '<p class="sub"><span class="spin"></span> testando…</p>'; const res = [];
+  const tenta = async (nome, fn, esperado) => { let ok; try { await fn(); ok = 'permitido'; } catch (e) { ok = (e.code || '').includes('permission-denied') ? 'negado' : 'erro: ' + mensagemErro(e); } res.push({ nome, ok, esperado }); };
+  const E = ficha.empresaId || (EMPRESAS[0] && EMPRESAS[0].id); const p = ficha.perfil; const outraLoja = 'loja-inexistente-x';
+  await tenta('Ler a própria ficha', () => getDoc(doc(db, 'usuarios', user.uid)), 'permitido');
+  await tenta('Alterar o próprio perfil para ADMIN', () => updateDoc(doc(db, 'usuarios', user.uid), { perfil: 'ADMIN' }), p === 'ADMIN' ? 'negado' : 'negado');
+  await tenta('Criar uma empresa', () => setDoc(doc(db, 'empresas', 'teste-perm-' + Date.now()), { nome: 'x' }), p === 'ADMIN' ? 'permitido' : 'negado');
+  if (E) {
+    await tenta('Ler lojas da empresa', () => getDocs(col(E, 'lojas')), 'permitido');
+    await tenta('Gravar faturamento', () => setDoc(doc(db, 'empresas', E, 'faturamento', 'teste_' + Date.now()), { valor: 1, lojaId: outraLoja, autor: user.uid }), p === 'LIDER' ? 'negado' : 'permitido');
+    await tenta('Criar produto', () => setDoc(doc(db, 'empresas', E, 'produtos', 'teste-' + Date.now()), { nome: 'TESTE', un: 'un', custo: 1, cat: 'x', lojas: {} }), p === 'LIDER' ? 'negado' : 'permitido');
+    await tenta('Lançar compra em loja que não é minha', () => setDoc(doc(db, 'empresas', E, 'compras', 'teste-' + Date.now()), { lojaId: outraLoja, autor: user.uid, total: 1, status: 'lançada' }), p === 'LIDER' ? 'negado' : 'permitido');
+    if (p === 'LIDER' && ficha.lojas && ficha.lojas[0]) {
+      await tenta('Lançar compra na minha loja', () => setDoc(doc(db, 'empresas', E, 'compras', 'teste-' + Date.now()), { lojaId: ficha.lojas[0], autor: user.uid, total: 1, status: 'teste', teste: true }), 'permitido');
+      await tenta('Lançar compra na minha loja fingindo outro autor', () => setDoc(doc(db, 'empresas', E, 'compras', 'teste-' + Date.now()), { lojaId: ficha.lojas[0], autor: 'outro', total: 1, status: 'teste' }), 'negado');
+      await tenta('Baixar um empréstimo (status baixado)', () => setDoc(doc(db, 'empresas', E, 'emprestimos', 'teste-' + Date.now()), { origem: ficha.lojas[0], destino: outraLoja, autor: user.uid, status: 'baixado' }), 'negado');
+    }
+    await tenta('Ler auditoria', () => getDocs(col(E, 'auditoria')), p === 'LIDER' ? 'negado' : 'permitido');
+    await tenta('Criar ficha de usuário GESTOR', () => setDoc(doc(db, 'usuarios', 'teste-' + Date.now()), { empresaId: E, perfil: 'GESTOR', nome: 'x', email: 'x@x', ativo: true, lojas: [] }), p === 'ADMIN' ? 'permitido' : 'negado');
+  }
+  const falhas = res.filter(r => r.ok !== r.esperado);
+  out.innerHTML = `<div class="${falhas.length ? 'badbox' : 'okbox'}">${falhas.length ? falhas.length + ' resultado(s) diferente(s) do esperado.' : 'Todas as respostas do servidor conferem com o esperado para o perfil ' + p + '.'}</div><div class="card" style="padding:6px 12px 10px"><table><tr><th>Operação</th><th>Servidor</th><th>Esperado</th></tr>${res.map(r => `<tr><td>${esc(r.nome)}</td><td><span class="chip ${r.ok === r.esperado ? 'ok' : 'bad'}">${esc(r.ok)}</span></td><td>${esc(r.esperado)}</td></tr>`).join('')}</table></div><div class="hint">Registros de teste que foram permitidos ficam gravados com marca "teste"; o admin pode apagá-los depois.</div>`;
+}
+
+/* ---------- gestor e líder (fase 2) ---------- */
+async function renderInicio() {
+  $('hdrName').textContent = ficha.nome || user.email; $('hdrRole').textContent = (ficha.perfil === 'GESTOR' ? 'Gestor' : 'Líder de loja') + (EMPRESA ? ' · ' + EMPRESA.nome : '');
+  if (EMPRESA && EMPRESA.logo) $('hdrLogo').innerHTML = `<img src="${EMPRESA.logo}">`; else $('hdrLogo').textContent = (EMPRESA ? EMPRESA.nome[0] : 'E').toUpperCase();
+  const m = $('inicioMain'); let lojas = '';
+  if (EMPRESA) { const s = await getDocs(col(EMPRESA.id, 'lojas')); const ls = s.docs.map(d => ({ id: d.id, ...d.data() })); lojas = (ficha.perfil === 'GESTOR' ? ls.filter(l => l.tipo === 'PRÓPRIA') : ls.filter(l => (ficha.lojas || []).includes(l.id))).map(l => l.nome).join(', '); }
+  m.innerHTML = `<h1>Olá, ${esc((ficha.nome || '').split(' ')[0])}</h1><p class="sub">Seu acesso está funcionando.</p><div class="card"><div class="row"><div class="l"><b>${esc(EMPRESA ? EMPRESA.nome : '—')}</b><span>${ficha.perfil === 'GESTOR' ? 'todas as lojas: ' : 'suas lojas: '}${esc(lojas || 'nenhuma')}</span></div><div class="r"><span class="chip ok">${esc(ficha.perfil)}</span></div></div></div><div class="card"><b style="font-size:14px">Em construção</b><div class="hint" style="margin-top:6px">As telas de contagem, compras, empréstimos, perdas e relatórios entram na fase 2. Por enquanto, o teste de permissões abaixo confirma o que o seu perfil pode e não pode fazer no servidor.</div></div><button class="btn ghost" id="btnTesteL">Rodar teste de permissões</button><div id="testeOut" style="margin-top:12px"></div>`;
+  $('btnTesteL').onclick = rodarTeste;
+}
+const RENDER = { 's-admin': renderAdmin, 's-empresa': renderEmpresa, 's-teste': renderTeste, 's-inicio': renderInicio };
+window.go = go;
+</script>
+</body>
+</html>
