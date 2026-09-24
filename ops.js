@@ -47,7 +47,8 @@
   const limite = () => (O.ctx.empresa && O.ctx.empresa.limiteVariacao) || 50;
 
   /* ---------- motor de cálculo ---------- */
-  const contagensDe = l => O.S.contagens.filter(c => c.lojaId === l);
+  const dataOk = d => /^\d{4}-\d{2}-\d{2}$/.test(d || '');
+  const contagensDe = l => O.S.contagens.filter(c => c.lojaId === l && dataOk(c.data));
   const fechadasDe = l => contagensDe(l).filter(c => c.status === 'fechada').map(c => c.data).sort();
   const contagem = (l, d) => O.S.contagens.find(c => c.lojaId === l && c.data === d);
   function lojasComDados() { return proprias().filter(l => fechadasDe(l).length); }
