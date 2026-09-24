@@ -60,79 +60,83 @@ nav.bottom button i{width:20px;height:20px;border-radius:6px;background:var(--li
 .spin{display:inline-block;width:14px;height:14px;border:2px solid var(--line);border-top-color:var(--brand);border-radius:50%;animation:sp .8s linear infinite;vertical-align:middle}@keyframes sp{to{transform:rotate(360deg)}}
 table{width:100%;border-collapse:collapse;font-size:13px}th{font-size:11px;color:var(--muted);text-align:left;padding:6px 4px;font-weight:600;border-bottom:1px solid var(--line)}td{padding:8px 4px;border-bottom:1px solid var(--line);font-weight:600}
 .opt{display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--line);font-size:13px}.opt:last-child{border:0}
+
+.big{font-size:34px;font-weight:800;letter-spacing:-.02em;line-height:1}.big small{font-size:14px;font-weight:600;color:var(--muted);margin-left:6px;letter-spacing:0}
+.tile{background:var(--paper);border-radius:14px;padding:16px 14px;font-weight:700;font-size:15px;cursor:pointer;border:0;text-align:left;font-family:inherit;color:var(--ink)}.tile span{display:block;font-size:12px;color:var(--muted);font-weight:500;margin-top:4px}
+input.num{font-size:22px;font-weight:700;text-align:right}
+.pick{width:100%;font:inherit;font-size:15px;font-weight:600;padding:13px 14px;border:1.5px solid var(--line);border-radius:10px;background:var(--paper);color:var(--ink);text-align:left;display:flex;justify-content:space-between;gap:8px;cursor:pointer}.pick span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.pick i{color:var(--muted);font-style:normal}
+.total{display:flex;justify-content:space-between;align-items:baseline;padding:14px 0;border-top:1px solid var(--line);margin-top:12px;font-weight:700}.total b{font-size:20px}
+.search{position:sticky;top:0;background:var(--bg);padding:6px 0 10px;margin:-6px 0 4px;z-index:2}
+.cnt{background:var(--paper);border-radius:14px;padding:12px 14px 10px;margin-bottom:10px}.cnt .name{font-size:14px;font-weight:700;line-height:1.25}.cnt .prev{font-size:12px;color:var(--muted);margin-top:2px}
+.cnt .line{display:flex;align-items:center;gap:8px;margin-top:8px}.cnt input{flex:1;font:inherit;font-size:24px;font-weight:800;text-align:right;padding:8px 12px;border:1.5px solid var(--line);border-radius:10px;min-width:0;background:#fff}.cnt input:focus{outline:0;border-color:var(--brand)}
+.cnt .un{width:30px;font-size:13px;font-weight:700;color:var(--muted)}.cnt .plus{width:42px;height:42px;border-radius:10px;border:1.5px dashed var(--line);background:none;font-size:22px;color:var(--brand);font-family:inherit;cursor:pointer}
+.cnt .sum{display:flex;justify-content:space-between;align-items:center;margin-top:8px;font-size:12px;color:var(--muted)}.cnt .sum b{font-size:14px;color:var(--ink)}
+.delta{font-size:12px;font-weight:700;padding:2px 8px;border-radius:999px;background:var(--line);color:var(--muted)}.delta.up{background:var(--ok-bg);color:var(--ok)}.delta.down{background:var(--warn-bg);color:var(--warn)}.delta.alert{background:var(--bad-bg);color:var(--bad)}
+.foot{flex:none;padding:10px 16px;background:var(--paper);border-top:1px solid var(--line)}
+.prog{height:6px;background:var(--line);border-radius:3px;overflow:hidden;margin:6px 0 8px}.prog i{display:block;height:100%;background:var(--brand-2)}
+.segs{display:flex;background:var(--line);border-radius:10px;padding:3px;margin-bottom:12px}.segs button{flex:1;border:0;background:none;font:inherit;font-size:13px;font-weight:700;padding:8px;border-radius:8px;color:var(--muted);cursor:pointer;white-space:nowrap}.segs button.on{background:var(--paper);color:var(--brand)}
+#picker{position:fixed;inset:0;background:rgba(0,0,0,.35);display:none;z-index:20;align-items:flex-end;justify-content:center}#picker.on{display:flex}#picker .sheet{background:var(--bg);width:100%;max-width:480px;height:88%;border-radius:18px 18px 0 0;display:flex;flex-direction:column;padding:14px 16px 0}#picker .list{flex:1;overflow:auto;margin-top:10px}#picker .it{background:var(--paper);border-radius:10px;padding:12px 14px;margin-bottom:6px;font-size:14px;font-weight:600;cursor:pointer}#picker .it span{display:block;font-size:12px;color:var(--muted);font-weight:500}
+.emp-in{border-left:4px solid var(--warn);padding-left:10px}.emp-out{border-left:4px solid var(--brand);padding-left:10px}.emp-done{border-left:4px solid var(--line);padding-left:10px;opacity:.75}
+td.k{font-weight:800}th{text-align:right}th:first-child,td:first-child{text-align:left}td{text-align:right}
+@media print{nav.bottom,header.top,.btn,#picker,#modal{display:none!important}main{overflow:visible}}
 </style>
 </head>
 <body>
 <div id="app">
-
 <section class="screen on" id="s-loading"><div class="login"><div class="mark">E</div><h1>Estoque e CMV</h1><p>Carregando…</p></div></section>
-
-<section class="screen" id="s-login">
-  <div class="login">
-    <div class="mark" id="loginMark">E</div>
-    <h1>Estoque e CMV</h1>
-    <p>Entre com o e-mail e a senha cadastrados pela sua empresa.</p>
-    <label class="f">E-mail</label><input class="f" id="lEmail" type="email" autocomplete="username" placeholder="voce@empresa.com">
-    <label class="f">Senha</label><input class="f" id="lSenha" type="password" autocomplete="current-password">
-    <div class="err" id="lErr"></div>
-    <button class="btn" id="lBtn" onclick="entrar()">Entrar</button>
-    <a href="#" onclick="esqueci();return false">Esqueci a senha</a>
-  </div>
-</section>
-
-<section class="screen" id="s-semficha">
-  <div class="login"><div class="mark">!</div><h1>Sem acesso</h1><p id="semFichaTxt">Seu login existe, mas ainda não foi vinculado a uma empresa. Peça ao administrador.</p><button class="btn" onclick="sair()">Sair</button></div>
-</section>
-
-<!-- ADMIN -->
-<section class="screen" id="s-admin">
-  <header class="top"><div class="logo" style="background:#fff;color:#222">◆</div><div class="who"><b>Administração</b><span id="admSub">Empresas</span></div><button class="icon" onclick="sair()" title="Sair">⎋</button></header>
-  <main id="admMain"></main>
-  <nav class="bottom" id="navAdm"></nav>
-</section>
-
-<section class="screen" id="s-empresa">
-  <header class="top"><button class="back" onclick="go('s-admin')">‹</button><div class="who"><b id="empTit">Empresa</b><span id="empSub"></span></div></header>
-  <main id="empMain"></main>
-  <nav class="bottom"></nav>
-</section>
-
-<section class="screen" id="s-teste">
-  <header class="top"><button class="back" onclick="go('s-admin')">‹</button><div class="who"><b>Teste de permissões</b><span>contra o banco real</span></div></header>
-  <main id="testeMain"></main>
-  <nav class="bottom"></nav>
-</section>
-
-<!-- GESTOR / LÍDER (fase 2) -->
-<section class="screen" id="s-inicio">
-  <header class="top"><div class="logo" id="hdrLogo">E</div><div class="who"><b id="hdrName"></b><span id="hdrRole"></span></div><button class="icon" onclick="sair()" title="Sair">⎋</button></header>
-  <main id="inicioMain"></main>
-  <nav class="bottom"></nav>
-</section>
+<section class="screen" id="s-login"><div class="login"><div class="mark" id="loginMark">E</div><h1>Estoque e CMV</h1><p>Entre com o e-mail e a senha cadastrados pela sua empresa.</p><label class="f">E-mail</label><input class="f" id="lEmail" type="email" autocomplete="username" placeholder="voce@empresa.com"><label class="f">Senha</label><input class="f" id="lSenha" type="password" autocomplete="current-password"><div class="err" id="lErr"></div><button class="btn" id="lBtn" onclick="entrar()">Entrar</button><a href="#" onclick="esqueci();return false">Esqueci a senha</a></div></section>
+<section class="screen" id="s-semficha"><div class="login"><div class="mark">!</div><h1>Sem acesso</h1><p id="semFichaTxt"></p><button class="btn" onclick="sair()">Sair</button></div></section>
+<section class="screen" id="s-admin"><header class="top"><div class="logo" style="background:#fff;color:#222">◆</div><div class="who"><b>Administração</b><span id="admSub">Empresas</span></div><button class="icon" onclick="sair()" title="Sair">⎋</button></header><main id="admMain"></main><nav class="bottom" id="navAdm"></nav></section>
+<section class="screen" id="s-empresa"><header class="top"><button class="back" onclick="go('s-admin')">‹</button><div class="who"><b id="empTit">Empresa</b><span id="empSub"></span></div></header><main id="empMain"></main><nav class="bottom"></nav></section>
+<section class="screen" id="s-teste"><header class="top"><button class="back" onclick="go('s-admin')">‹</button><div class="who"><b>Teste de permissões</b><span>contra o banco real</span></div></header><main id="testeMain"></main><nav class="bottom"></nav></section>
+<section class="screen" id="s-inicio"><header class="top"><div class="logo hdrLogo">E</div><div class="who"><b id="hdrName"></b><span id="hdrRole"></span></div><select class="lojaSel"></select><button class="icon" onclick="sair()" title="Sair">⎋</button></header><main id="inicioMain"></main><nav class="bottom ops"></nav></section>
+<section class="screen" id="s-resumo"><header class="top"><button class="back" onclick="OPS.go('s-inicio')">‹</button><div class="who"><b id="resTit">Resumo do CMV</b><span class="lojaTxt"></span></div></header><main id="resumoMain"></main><nav class="bottom ops"></nav></section>
+<section class="screen" id="s-contagem"><header class="top"><div class="logo hdrLogo">E</div><div class="who"><b>Contagens</b><span class="lojaTxt"></span></div><select class="lojaSel"></select><button class="icon" onclick="sair()" title="Sair">⎋</button></header><main id="contMain"></main><nav class="bottom ops"></nav></section>
+<section class="screen" id="s-folha"><header class="top"><button class="back" onclick="OPS.go('s-contagem')">‹</button><div class="who"><b id="folhaTit">Contagem</b><span class="lojaTxt"></span></div><span class="chip" style="background:rgba(255,255,255,.2);color:#fff" id="folhaStatus">aberta</span></header><main><div class="search"><input class="f" id="folhaSearch" placeholder="Buscar produto"><div class="prog"><i id="progBar" style="width:0%"></i></div><div class="hint" id="progTxt"></div></div><div id="folha"></div></main><div class="foot"><div style="display:flex;gap:10px"><button class="btn ghost" id="btnSalvar">Salvar</button><button class="btn" id="btnFechar">Fechar contagem</button></div></div><nav class="bottom ops"></nav></section>
+<section class="screen" id="s-fechar"><header class="top"><button class="back" onclick="OPS.go('s-folha')">‹</button><div class="who"><b id="fecTit">Fechar contagem</b><span class="lojaTxt"></span></div></header><main id="fecharMain"></main><nav class="bottom ops"></nav></section>
+<section class="screen" id="s-compras"><header class="top"><div class="logo hdrLogo">E</div><div class="who"><b>Compras</b><span class="lojaTxt"></span></div><select class="lojaSel"></select><button class="icon" onclick="sair()" title="Sair">⎋</button></header><main id="comprasMain"></main><nav class="bottom ops"></nav></section>
+<section class="screen" id="s-compra"><header class="top"><button class="back" onclick="OPS.go('s-compras')">‹</button><div class="who"><b id="cTit">Nova compra</b><span class="lojaTxt"></span></div></header><main>
+  <label class="f">Fornecedor</label><input class="f" id="cForn" list="fornList" placeholder="Digite ou escolha"><datalist id="fornList"></datalist><div class="hint">Nome novo cria o fornecedor e avisa o gestor para revisar.</div>
+  <div class="grid2"><div><label class="f">Data de recebimento</label><input class="f" type="date" id="cData"></div><div><label class="f">Número da NF</label><input class="f" id="cNF" inputmode="numeric" placeholder="000000"></div></div>
+  <label class="f">Valor total da NF (R$)</label><input class="f num" id="cTotal" inputmode="decimal" placeholder="0,00">
+  <h2>Itens por categoria de compra</h2><div class="card" id="cItens"></div><button class="btn soft" id="btnAddItem">+ adicionar categoria</button>
+  <div class="total"><span>Soma dos itens</span><b id="cSoma">R$ 0,00</b></div><div id="cConfere" class="hint"></div><div class="hint" id="cCmvTxt"></div>
+  <label class="f">Observação</label><input class="f" id="cObs" placeholder="opcional"><div class="err" id="cErr"></div>
+  <button class="btn" style="margin-top:18px" id="btnSalvarCompra">Lançar compra</button></main><nav class="bottom ops"></nav></section>
+<section class="screen" id="s-emprestimos"><header class="top"><div class="logo hdrLogo">E</div><div class="who"><b>Empréstimos</b><span class="lojaTxt"></span></div><select class="lojaSel"></select><button class="icon" onclick="sair()" title="Sair">⎋</button></header><main id="empsMain"></main><nav class="bottom ops"></nav></section>
+<section class="screen" id="s-emprestimo"><header class="top"><button class="back" onclick="OPS.go('s-emprestimos')">‹</button><div class="who"><b id="eTit">Novo empréstimo</b><span class="lojaTxt"></span></div></header><main>
+  <div class="hint" id="eOrigTxt"></div><label class="f">Loja destino</label><select class="f" id="eDest"></select><div class="hint" id="eDestTxt"></div>
+  <label class="f">Produto</label><button class="pick" id="eProd"><span>Escolher produto</span><i>›</i></button>
+  <div class="grid2"><div><label class="f" id="eQtdLbl">Quantidade</label><input class="f num" id="eQtd" inputmode="decimal" placeholder="0"></div><div><label class="f">Data de saída</label><input class="f" type="date" id="eData"></div></div>
+  <label class="f">Motivo</label><select class="f" id="eMotivo"></select><label class="f">Observação</label><input class="f" id="eObs" placeholder="opcional">
+  <div id="eNaoVoltaWrap"><label class="opt" style="margin-top:12px"><input type="checkbox" id="eNaoVolta"><div><b>Não vai retornar</b><div class="hint" style="margin:0">Evento, teste ou cortesia. O gestor confirma a baixa, com a data de saída.</div></div></label></div>
+  <div class="total"><span>Valor congelado <span class="hint" style="display:inline" id="eCusto"></span></span><b id="eVal">R$ 0,00</b></div><div class="hint" id="eEfeito"></div><div class="err" id="eErr"></div>
+  <button class="btn" style="margin-top:18px" id="btnEmp">Enviar empréstimo</button></main><nav class="bottom ops"></nav></section>
+<section class="screen" id="s-perdas"><header class="top"><div class="logo hdrLogo">E</div><div class="who"><b>Perdas</b><span class="lojaTxt"></span></div><select class="lojaSel"></select><button class="icon" onclick="sair()" title="Sair">⎋</button></header><main id="perdasMain"></main><nav class="bottom ops"></nav></section>
+<section class="screen" id="s-perda"><header class="top"><button class="back" onclick="OPS.go('s-perdas')">‹</button><div class="who"><b id="pTit">Nova perda</b><span class="lojaTxt"></span></div></header><main>
+  <label class="f">Produto</label><button class="pick" id="pProd"><span>Escolher produto</span><i>›</i></button>
+  <div class="grid2"><div><label class="f" id="pQtdLbl">Quantidade</label><input class="f num" id="pQtd" inputmode="decimal" placeholder="0"></div><div><label class="f">Data</label><input class="f" type="date" id="pData"></div></div>
+  <label class="f">Motivo</label><select class="f" id="pMotivo"></select><label class="f">Observação</label><textarea class="f" id="pObs" rows="2" placeholder="opcional"></textarea>
+  <div class="total"><span>Valor da perda <span class="hint" style="display:inline" id="pCusto"></span></span><b id="pVal">R$ 0,00</b></div><div class="hint">O custo fica congelado neste lançamento. Para excluir depois, o gestor precisa aprovar.</div><div class="err" id="pErr"></div>
+  <button class="btn" style="margin-top:18px" id="btnPerda">Lançar perda</button><button class="btn ghost" id="btnPerdaOutra">Lançar e adicionar outra</button></main><nav class="bottom ops"></nav></section>
+<section class="screen" id="s-rel"><header class="top"><div class="logo hdrLogo">E</div><div class="who"><b>Relatórios</b><span class="lojaTxt"></span></div><select class="lojaSel"></select><button class="icon" onclick="sair()" title="Sair">⎋</button></header><main id="relMain"></main><nav class="bottom ops"></nav></section>
+<section class="screen" id="s-gestor"><header class="top"><div class="logo hdrLogo">E</div><div class="who"><b>Gestão</b><span class="lojaTxt"></span></div><button class="icon" onclick="sair()" title="Sair">⎋</button></header><main id="gestorMain"></main><nav class="bottom ops"></nav></section>
+<section class="screen" id="s-exportar"><header class="top"><button class="back" onclick="OPS.go('s-gestor')">‹</button><div class="who"><b id="expTit">Exportar</b><span class="lojaTxt"></span></div><select class="lojaSel"></select></header><main id="expMain"></main><nav class="bottom ops"></nav></section>
+<section class="screen" id="s-cadastro"><header class="top"><button class="back" onclick="OPS.go('s-gestor')">‹</button><div class="who"><b id="cadTit">Cadastros</b><span class="lojaTxt"></span></div></header><main id="cadMain"></main><nav class="bottom ops"></nav></section>
+<div id="picker"><div class="sheet"><input class="f" id="pickSearch" placeholder="Buscar produto"><div class="list" id="pickList"></div><button class="btn ghost" id="pickCancel" style="margin:10px 0 14px">Cancelar</button></div></div>
 
 <div id="modal"><div class="card" id="modalBox"></div></div>
 <div class="toast" id="toast"></div>
 </div>
-
+<script src="ops.js"></script>
 <script type="module">
 import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, sendPasswordResetEmail, createUserWithEmailAndPassword, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-import { getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc, collection, getDocs, writeBatch, serverTimestamp, query, where } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc, addDoc, collection, getDocs, writeBatch, serverTimestamp, query, where } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-const firebaseConfig = {
-  apiKey: "AIzaSyCS2HrK73irscm1R94BYLCi_gsRmjRIbWs",
-  authDomain: "estoque-asa.firebaseapp.com",
-  projectId: "estoque-asa",
-  storageBucket: "estoque-asa.firebasestorage.app",
-  messagingSenderId: "949132517623",
-  appId: "1:949132517623:web:1d2d0967f7441c9abc33f2"
-};
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
-await setPersistence(auth, browserLocalPersistence);
+const firebaseConfig = { apiKey: "AIzaSyCS2HrK73irscm1R94BYLCi_gsRmjRIbWs", authDomain: "estoque-asa.firebaseapp.com", projectId: "estoque-asa", storageBucket: "estoque-asa.firebasestorage.app", messagingSenderId: "949132517623", appId: "1:949132517623:web:1d2d0967f7441c9abc33f2" };
+const app = initializeApp(firebaseConfig); const auth = getAuth(app); const db = getFirestore(app); await setPersistence(auth, browserLocalPersistence);
 
-/* ---------- utilidades ---------- */
 const $ = id => document.getElementById(id);
 const col = (E, sub) => collection(db, 'empresas', E, sub);
 const fmt = n => 'R$ ' + (n || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -141,60 +145,49 @@ const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': 
 function toast(t) { const e = $('toast'); e.textContent = t; e.classList.add('on'); clearTimeout(e._t); e._t = setTimeout(() => e.classList.remove('on'), 3200); }
 function go(id) { document.querySelectorAll('.screen').forEach(s => s.classList.remove('on')); $(id).classList.add('on'); window.scrollTo(0, 0); (RENDER[id] || (() => {}))(); }
 let modalCb = null;
-function modal(o) {
-  modalCb = o.ok;
-  const f = (o.fields || []).map(x => `<label class="f">${esc(x.label)}</label>` + (x.type === 'select'
-    ? `<select class="f" data-k="${x.k}">${x.options.map(op => `<option value="${esc(op.v ?? op)}" ${(op.v ?? op) == x.value ? 'selected' : ''}>${esc(op.t ?? op)}</option>`).join('')}</select>`
-    : x.type === 'textarea' ? `<textarea class="f" rows="2" data-k="${x.k}" placeholder="${esc(x.ph || '')}">${esc(x.value || '')}</textarea>`
-    : `<input class="f" type="${x.type === 'password' ? 'password' : x.type === 'email' ? 'email' : 'text'}" data-k="${x.k}" value="${esc(x.value ?? '')}" placeholder="${esc(x.ph || '')}">`)).join('');
-  $('modalBox').innerHTML = `<h2 style="margin-top:0">${esc(o.title)}</h2>${o.text ? `<p class="sub">${o.text}</p>` : ''}${f}<div class="err" id="modalErr"></div><div style="display:flex;gap:8px;margin-top:16px"><button class="btn ghost" id="modalCancel">Cancelar</button><button class="btn ${o.danger ? 'danger' : ''}" id="modalOk">${esc(o.okLabel || 'Confirmar')}</button></div>`;
-  $('modalCancel').onclick = modalClose; $('modalOk').onclick = modalSubmit;
-  $('modal').style.display = 'flex';
-}
+function modal(o) { modalCb = o.ok; const f = (o.fields || []).map(x => `<label class="f">${esc(x.label)}</label>` + (x.type === 'select' ? `<select class="f" data-k="${x.k}">${x.options.map(op => `<option value="${esc(op.v ?? op)}" ${(op.v ?? op) == x.value ? 'selected' : ''}>${esc(op.t ?? op)}</option>`).join('')}</select>` : x.type === 'textarea' ? `<textarea class="f" rows="2" data-k="${x.k}" placeholder="${esc(x.ph || '')}">${esc(x.value || '')}</textarea>` : `<input class="f" type="${x.type === 'email' ? 'email' : 'text'}" data-k="${x.k}" value="${esc(x.value ?? '')}" placeholder="${esc(x.ph || '')}">`)).join(''); $('modalBox').innerHTML = `<h2 style="margin-top:0">${esc(o.title)}</h2>${o.text ? `<p class="sub">${o.text}</p>` : ''}${f}<div class="err" id="modalErr"></div><div style="display:flex;gap:8px;margin-top:16px"><button class="btn ghost" id="modalCancel">Cancelar</button><button class="btn ${o.danger ? 'danger' : ''}" id="modalOk">${esc(o.okLabel || 'Confirmar')}</button></div>`; $('modalCancel').onclick = modalClose; $('modalOk').onclick = modalSubmit; $('modal').style.display = 'flex'; }
 function modalClose() { $('modal').style.display = 'none'; modalCb = null; }
-async function modalSubmit() {
-  const out = {}; $('modalBox').querySelectorAll('[data-k]').forEach(el => out[el.dataset.k] = el.value);
-  const btn = $('modalOk'); btn.disabled = true;
-  try { const err = modalCb ? await modalCb(out) : null; if (err) { $('modalErr').textContent = err; btn.disabled = false; return; } modalClose(); }
-  catch (e) { $('modalErr').textContent = mensagemErro(e); btn.disabled = false; }
-}
-function mensagemErro(e) {
-  const c = e && e.code || '';
-  if (c.includes('permission-denied')) return 'Sem permissão para esta ação (negado pelo servidor).';
-  if (c.includes('auth/invalid-credential') || c.includes('auth/wrong-password') || c.includes('auth/user-not-found')) return 'E-mail ou senha incorretos.';
-  if (c.includes('auth/email-already-in-use')) return 'Este e-mail já tem login.';
-  if (c.includes('auth/invalid-email')) return 'E-mail inválido.';
-  if (c.includes('auth/too-many-requests')) return 'Muitas tentativas. Aguarde alguns minutos.';
-  if (c.includes('unavailable')) return 'Sem conexão com o servidor.';
-  return (e && e.message) || String(e);
-}
+async function modalSubmit() { const out = {}; $('modalBox').querySelectorAll('[data-k]').forEach(el => out[el.dataset.k] = el.value); const btn = $('modalOk'); btn.disabled = true; try { const err = modalCb ? await modalCb(out) : null; if (err) { $('modalErr').textContent = err; btn.disabled = false; return; } modalClose(); } catch (e) { $('modalErr').textContent = mensagemErro(e); btn.disabled = false; } }
+function mensagemErro(e) { const c = e && e.code || ''; if (c.includes('permission-denied')) return 'Sem permissão para esta ação (negado pelo servidor).'; if (c.includes('auth/invalid-credential') || c.includes('auth/wrong-password') || c.includes('auth/user-not-found')) return 'E-mail ou senha incorretos.'; if (c.includes('auth/email-already-in-use')) return 'Este e-mail já tem login.'; if (c.includes('auth/invalid-email')) return 'E-mail inválido.'; if (c.includes('auth/too-many-requests')) return 'Muitas tentativas. Aguarde alguns minutos.'; if (c.includes('unavailable')) return 'Sem conexão com o servidor.'; return (e && e.message) || String(e); }
 
 /* ---------- sessão ---------- */
 let user = null, ficha = null, EMPRESA = null, empresaAtual = null;
-window.entrar = async () => {
-  $('lErr').textContent = ''; $('lBtn').disabled = true;
-  try { await signInWithEmailAndPassword(auth, $('lEmail').value.trim(), $('lSenha').value); }
-  catch (e) { $('lErr').textContent = mensagemErro(e); }
-  $('lBtn').disabled = false;
-};
-window.esqueci = async () => {
-  const em = $('lEmail').value.trim(); if (!em) { $('lErr').textContent = 'Digite o e-mail e toque em "Esqueci a senha".'; return; }
-  try { await sendPasswordResetEmail(auth, em); toast('Enviamos um e-mail para redefinir a senha.'); } catch (e) { $('lErr').textContent = mensagemErro(e); }
-};
-window.sair = async () => { await signOut(auth); };
+window.entrar = async () => { $('lErr').textContent = ''; $('lBtn').disabled = true; try { await signInWithEmailAndPassword(auth, $('lEmail').value.trim(), $('lSenha').value); } catch (e) { $('lErr').textContent = mensagemErro(e); } $('lBtn').disabled = false; };
+window.esqueci = async () => { const em = $('lEmail').value.trim(); if (!em) { $('lErr').textContent = 'Digite o e-mail e toque em "Esqueci a senha".'; return; } try { await sendPasswordResetEmail(auth, em); toast('Enviamos um e-mail para redefinir a senha.'); } catch (e) { $('lErr').textContent = mensagemErro(e); } };
+window.sair = async () => { await signOut(auth); location.reload(); };
+window.goAdmin = () => go('s-admin');
 onAuthStateChanged(auth, async u => {
-  user = u;
-  if (!u) { ficha = null; go('s-login'); return; }
-  go('s-loading');
+  user = u; if (!u) { ficha = null; go('s-login'); return; } go('s-loading');
   try {
-    const snap = await getDoc(doc(db, 'usuarios', u.uid));
-    if (!snap.exists()) { $('semFichaTxt').textContent = 'Seu login existe, mas ainda não foi vinculado a uma empresa. Peça ao administrador.'; go('s-semficha'); return; }
-    ficha = snap.data();
-    if (ficha.ativo === false) { $('semFichaTxt').textContent = 'Seu acesso está desativado. Fale com o gestor.'; go('s-semficha'); return; }
+    const snap = await getDoc(doc(db, 'usuarios', u.uid)); if (!snap.exists()) { $('semFichaTxt').textContent = 'Seu login existe, mas ainda não foi vinculado a uma empresa. Peça ao administrador.'; go('s-semficha'); return; }
+    ficha = snap.data(); if (ficha.ativo === false) { $('semFichaTxt').textContent = 'Seu acesso está desativado. Fale com o gestor.'; go('s-semficha'); return; }
     if (ficha.perfil === 'ADMIN') { await carregarEmpresas(); go('s-admin'); }
-    else { await carregarEmpresa(ficha.empresaId); go('s-inicio'); }
+    else { await carregarEmpresa(ficha.empresaId); if (!EMPRESA) { $('semFichaTxt').textContent = 'Sua ficha aponta para uma empresa que não existe. Peça ao administrador.'; go('s-semficha'); return; } await entrarOps(); }
   } catch (e) { $('semFichaTxt').textContent = 'Erro ao carregar seu acesso: ' + mensagemErro(e); go('s-semficha'); }
 });
+
+/* ---------- adaptador de dados para o OPS ---------- */
+const limpo = o => JSON.parse(JSON.stringify(o));
+const rows = s => s.docs.map(d => ({ id: d.id, ...d.data() }));
+async function porLoja(E, sub, campo, lojas) { const out = []; for (const l of lojas) out.push(...rows(await getDocs(query(col(E, sub), where(campo, '==', l))))); return out; }
+function makeDB(E) { return {
+  mensagemErro,
+  async base() { const [lojas, produtos, cc, cp, forn, motivos] = await Promise.all(['lojas', 'produtos', 'categoriasCompra', 'categoriasProduto', 'fornecedores', 'motivos'].map(s => getDocs(col(E, s)))); return { lojas: rows(lojas), produtos: rows(produtos), catsCompra: rows(cc), catsProd: rows(cp), forn: rows(forn), motivos: rows(motivos) }; },
+  async ops(lojas) { const all = ficha.perfil !== 'LIDER'; const g = s => all ? getDocs(col(E, s)).then(rows) : porLoja(E, s, 'lojaId', lojas);
+    const [contagens, compras, perdas, faturamento, solicitacoes, contas] = await Promise.all([g('contagens'), g('compras'), g('perdas'), g('faturamento'), g('solicitacoes'), getDocs(col(E, 'contasEmpresa')).then(rows)]);
+    let emprestimos; if (all) emprestimos = rows(await getDocs(col(E, 'emprestimos'))); else { const a = await porLoja(E, 'emprestimos', 'origem', lojas), b = await porLoja(E, 'emprestimos', 'destino', lojas); const m = new Map(); [...a, ...b].forEach(x => m.set(x.id, x)); emprestimos = [...m.values()]; }
+    return { contagens, compras, perdas, emprestimos, faturamento, solicitacoes, contas }; },
+  async add(sub, data) { const r = await addDoc(col(E, sub), limpo(data)); return r.id; },
+  async set(sub, id, data) { await setDoc(doc(db, 'empresas', E, sub, id), limpo(data)); },
+  async update(sub, id, patch) { await updateDoc(doc(db, 'empresas', E, sub, id), limpo(patch)); },
+  async remove(sub, id) { await deleteDoc(doc(db, 'empresas', E, sub, id)); },
+  async log(entry) { await addDoc(col(E, 'auditoria'), limpo({ ...entry, autor: user.uid, autorNome: ficha.nome, em: new Date().toISOString() })); },
+  async custoHistorico(pid, data) { await addDoc(collection(db, 'empresas', E, 'produtos', pid, 'custos'), limpo(data)); },
+  async usuarios() { return rows(await getDocs(query(collection(db, 'usuarios'), where('empresaId', '==', E)))); },
+  async salvarUsuario(uid, dados) { await updateDoc(doc(db, 'usuarios', uid), limpo(dados)); },
+  async criarUsuario(dados) { const uid = await criarLogin(dados.email); await setDoc(doc(db, 'usuarios', uid), limpo({ ...dados, criadoPor: user.uid })); await sendPasswordResetEmail(auth, dados.email); },
+}; }
+async function entrarOps() { if (!EMPRESA) return; const ctx = { uid: user.uid, ficha: ficha.perfil === 'ADMIN' ? { ...ficha, empresaId: EMPRESA.id } : ficha, empresa: EMPRESA }; await OPS.iniciar(makeDB(EMPRESA.id), ctx); }
 
 /* ---------- empresas ---------- */
 let EMPRESAS = [];
@@ -235,9 +228,10 @@ async function renderEmpresa() {
   const body = $('empBody');
   if (empTab === 'resumo') {
     const c = await contagens(EMPRESA.id);
-    body.innerHTML = `<div class="card"><div class="row"><div class="l"><b>${esc(EMPRESA.nome)}</b><span>${c.lojas} loja(s) · ${c.produtos} produtos · ${c.usuarios} usuário(s) · limite de variação ${EMPRESA.limiteVariacao || 50} %</span></div></div><div style="display:flex;gap:8px;padding-top:10px;flex-wrap:wrap"><button class="btn sm" id="btnEditEmp">Editar nome e cores</button><button class="btn sm ghost" id="btnLogo">Logo</button></div></div>
+    body.innerHTML = `<div class="card"><div class="row"><div class="l"><b>${esc(EMPRESA.nome)}</b><span>${c.lojas} loja(s) · ${c.produtos} produtos · ${c.usuarios} usuário(s) · limite de variação ${EMPRESA.limiteVariacao || 50} %</span></div></div><div style="display:flex;gap:8px;padding-top:10px;flex-wrap:wrap"><button class="btn sm" id="btnEditEmp">Editar nome e cores</button><button class="btn sm ghost" id="btnLogo">Logo</button><button class="btn sm ghost" id="btnOperar">Operar como gestor</button></div></div>
     <div class="card"><b style="font-size:14px">Ordem recomendada</b><div class="hint" style="margin-top:6px">1. Importar a planilha padrão (aba Base) — cria lojas, categorias, produtos, fornecedores, motivos e o estoque inicial.<br>2. Criar os usuários (aba Usuários): gestor e líderes.<br>3. Rodar o Teste de permissões (aba Teste, no rodapé).</div></div>`;
     $('btnEditEmp').onclick = () => modal({ title: 'Editar empresa', fields: [{ k: 'nome', label: 'Nome', value: EMPRESA.nome }, { k: 'c1', label: 'Cor principal (hex)', value: EMPRESA.c1 || '#4B1F5C' }, { k: 'c2', label: 'Cor secundária (hex)', value: EMPRESA.c2 || '#8CC63F' }, { k: 'limite', label: 'Limite de variação (%)', value: String(EMPRESA.limiteVariacao || 50) }], okLabel: 'Salvar', ok: async v => { if (!v.nome.trim()) return 'Informe o nome.'; await updateDoc(doc(db, 'empresas', EMPRESA.id), { nome: v.nome.trim(), c1: v.c1, c2: v.c2, limiteVariacao: q(v.limite) || 50 }); await carregarEmpresa(EMPRESA.id); toast('Empresa atualizada.'); renderEmpresa(); } });
+    $('btnOperar').onclick = () => entrarOps();
     $('btnLogo').onclick = () => { const inp = document.createElement('input'); inp.type = 'file'; inp.accept = 'image/*'; inp.onchange = () => { const f = inp.files[0]; if (!f) return; if (f.size > 300000) return toast('Use uma imagem de até 300 KB.'); const r = new FileReader(); r.onload = async e => { await updateDoc(doc(db, 'empresas', EMPRESA.id), { logo: e.target.result }); toast('Logo salvo.'); await carregarEmpresa(EMPRESA.id); }; r.readAsDataURL(f); }; inp.click(); };
   }
   if (empTab === 'lojas') {
@@ -332,6 +326,7 @@ async function importar(d) {
     out.innerHTML = `<div class="okbox">Importado: ${d.lojasX.length} lojas, ${d.prods.length} produtos, contagem inicial de ${data.split('-').reverse().join('/')} nas lojas próprias.</div>`; toast('Base importada.');
   } catch (e) { out.innerHTML = `<div class="badbox">Falha: ${esc(mensagemErro(e))}. Nada parcial deve ser usado; me avise.</div>`; }
 }
+
 /* ---------- teste de permissões ---------- */
 async function renderTeste() {
   renderNavAdm('s-teste'); const m = $('testeMain');
@@ -362,17 +357,10 @@ async function rodarTeste() {
   out.innerHTML = `<div class="${falhas.length ? 'badbox' : 'okbox'}">${falhas.length ? falhas.length + ' resultado(s) diferente(s) do esperado.' : 'Todas as respostas do servidor conferem com o esperado para o perfil ' + p + '.'}</div><div class="card" style="padding:6px 12px 10px"><table><tr><th>Operação</th><th>Servidor</th><th>Esperado</th></tr>${res.map(r => `<tr><td>${esc(r.nome)}</td><td><span class="chip ${r.ok === r.esperado ? 'ok' : 'bad'}">${esc(r.ok)}</span></td><td>${esc(r.esperado)}</td></tr>`).join('')}</table></div><div class="hint">Registros de teste que foram permitidos ficam gravados com marca "teste"; o admin pode apagá-los depois.</div>`;
 }
 
-/* ---------- gestor e líder (fase 2) ---------- */
-async function renderInicio() {
-  $('hdrName').textContent = ficha.nome || user.email; $('hdrRole').textContent = (ficha.perfil === 'GESTOR' ? 'Gestor' : 'Líder de loja') + (EMPRESA ? ' · ' + EMPRESA.nome : '');
-  if (EMPRESA && EMPRESA.logo) $('hdrLogo').innerHTML = `<img src="${EMPRESA.logo}">`; else $('hdrLogo').textContent = (EMPRESA ? EMPRESA.nome[0] : 'E').toUpperCase();
-  const m = $('inicioMain'); let lojas = '';
-  if (EMPRESA) { const s = await getDocs(col(EMPRESA.id, 'lojas')); const ls = s.docs.map(d => ({ id: d.id, ...d.data() })); lojas = (ficha.perfil === 'GESTOR' ? ls.filter(l => l.tipo === 'PRÓPRIA') : ls.filter(l => (ficha.lojas || []).includes(l.id))).map(l => l.nome).join(', '); }
-  m.innerHTML = `<h1>Olá, ${esc((ficha.nome || '').split(' ')[0])}</h1><p class="sub">Seu acesso está funcionando.</p><div class="card"><div class="row"><div class="l"><b>${esc(EMPRESA ? EMPRESA.nome : '—')}</b><span>${ficha.perfil === 'GESTOR' ? 'todas as lojas: ' : 'suas lojas: '}${esc(lojas || 'nenhuma')}</span></div><div class="r"><span class="chip ok">${esc(ficha.perfil)}</span></div></div></div><div class="card"><b style="font-size:14px">Em construção</b><div class="hint" style="margin-top:6px">As telas de contagem, compras, empréstimos, perdas e relatórios entram na fase 2. Por enquanto, o teste de permissões abaixo confirma o que o seu perfil pode e não pode fazer no servidor.</div></div><button class="btn ghost" id="btnTesteL">Rodar teste de permissões</button><div id="testeOut" style="margin-top:12px"></div>`;
-  $('btnTesteL').onclick = rodarTeste;
-}
-const RENDER = { 's-admin': renderAdmin, 's-empresa': renderEmpresa, 's-teste': renderTeste, 's-inicio': renderInicio };
+
+const RENDER = { 's-admin': renderAdmin, 's-empresa': renderEmpresa, 's-teste': renderTeste };
 window.go = go;
+
 </script>
 </body>
 </html>
