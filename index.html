@@ -87,9 +87,9 @@ td.k{font-weight:800}th{text-align:right}th:first-child,td:first-child{text-alig
 <body>
 <div id="app">
 <section class="screen on" id="s-loading"><div class="login"><div class="mark">E</div><h1>Estoque e CMV</h1><p>Carregando…</p></div></section>
-<section class="screen" id="s-login"><div class="login"><div class="mark" id="loginMark">E</div><h1>Estoque e CMV</h1><p>Entre com o e-mail e a senha cadastrados pela sua empresa.</p><label class="f">E-mail</label><input class="f" id="lEmail" type="email" autocomplete="username" placeholder="voce@empresa.com"><label class="f">Senha</label><input class="f" id="lSenha" type="password" autocomplete="current-password"><div class="err" id="lErr"></div><button class="btn" id="lBtn" onclick="entrar()">Entrar</button><a href="#" onclick="esqueci();return false">Esqueci a senha</a><div class="hint" style="margin-top:18px;opacity:.7">versão 2.10</div></div></section>
+<section class="screen" id="s-login"><div class="login"><div class="mark" id="loginMark">E</div><h1>Estoque e CMV</h1><p>Entre com o e-mail e a senha cadastrados pela sua empresa.</p><label class="f">E-mail</label><input class="f" id="lEmail" type="email" autocomplete="username" placeholder="voce@empresa.com"><label class="f">Senha</label><input class="f" id="lSenha" type="password" autocomplete="current-password"><div class="err" id="lErr"></div><button class="btn" id="lBtn" onclick="entrar()">Entrar</button><a href="#" onclick="esqueci();return false">Esqueci a senha</a><div class="hint" style="margin-top:18px;opacity:.7">versão 2.11</div></div></section>
 <section class="screen" id="s-semficha"><div class="login"><div class="mark">!</div><h1>Sem acesso</h1><p id="semFichaTxt"></p><button class="btn" onclick="sair()">Sair</button></div></section>
-<section class="screen" id="s-admin"><header class="top"><div class="logo" style="background:#fff;color:#222">◆</div><div class="who"><b>Administração</b><span id="admSub">Empresas · v2.10</span></div><button class="icon" onclick="sair()" title="Sair">⎋</button></header><main id="admMain"></main><nav class="bottom" id="navAdm"></nav></section>
+<section class="screen" id="s-admin"><header class="top"><div class="logo" style="background:#fff;color:#222">◆</div><div class="who"><b>Administração</b><span id="admSub">Empresas · v2.11</span></div><button class="icon" onclick="sair()" title="Sair">⎋</button></header><main id="admMain"></main><nav class="bottom" id="navAdm"></nav></section>
 <section class="screen" id="s-empresa"><header class="top"><button class="back" onclick="go('s-admin')">‹</button><div class="who"><b id="empTit">Empresa</b><span id="empSub"></span></div></header><main id="empMain"></main><nav class="bottom"></nav></section>
 <section class="screen" id="s-teste"><header class="top"><button class="back" onclick="go('s-admin')">‹</button><div class="who"><b>Teste de permissões</b><span>contra o banco real</span></div></header><main id="testeMain"></main><nav class="bottom"></nav></section>
 <section class="screen" id="s-inicio"><header class="top"><div class="logo hdrLogo">E</div><div class="who"><b id="hdrName"></b><span id="hdrRole"></span></div><select class="lojaSel"></select><button class="icon" onclick="sair()" title="Sair">⎋</button></header><main id="inicioMain"></main><nav class="bottom ops"></nav></section>
@@ -131,7 +131,116 @@ td.k{font-weight:800}th{text-align:right}th:first-child,td:first-child{text-alig
 <div id="modal"><div class="card" id="modalBox"></div></div>
 <div class="toast" id="toast"></div>
 </div>
-<script src="ops.js?v=2.10"></script>
+<script>/* guias de uso, gerados com as cores e o logo da empresa */
+window.GUIAS = (function () {
+  const CSS = `#printArea .gd{font-family:'Manrope',Arial,Helvetica,sans-serif;color:#1C1A20;font-size:9.1pt;line-height:1.28}
+#printArea .gd .hd{background:var(--g1);color:#fff;border-radius:10px;padding:10px 14px;display:flex;justify-content:space-between;align-items:center;margin-bottom:9px}
+#printArea .gd .hd h1{font-size:16pt;font-weight:800;letter-spacing:-.01em}
+#printArea .gd .hd .sub{font-size:8.5pt;opacity:.85;margin-top:2px}
+#printArea .gd .hd .tag{font-size:8pt;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.4);border-radius:999px;padding:3px 9px;font-weight:700;white-space:nowrap}
+#printArea .gd .cols{display:grid;grid-template-columns:1fr 1fr;gap:8px 10px}
+#printArea .gd .box{border:1px solid #E6E3EA;border-radius:8px;padding:7px 9px 6px;break-inside:avoid;background:#fff}
+#printArea .gd .box h2{font-size:10.2pt;font-weight:800;color:var(--g1);margin-bottom:4px;display:flex;align-items:center;gap:6px}
+#printArea .gd .box h2 .n{width:17px;height:17px;border-radius:5px;background:var(--g1);color:#fff;font-size:8.5pt;display:inline-flex;align-items:center;justify-content:center;flex:none}
+#printArea .gd .box.g h2{color:var(--g3)}
+#printArea .gd .box.g h2 .n{background:var(--g3)}
+#printArea .gd .box.w{background:#FBEEE3;border-color:#F1D6BE}
+#printArea .gd .box.w h2{color:#B7601A}
+#printArea .gd .box.w h2 .n{background:#B7601A}
+#printArea .gd ol,#printArea .gd ul{padding-left:15px}
+#printArea .gd li{margin:1.5px 0}
+#printArea .gd ol li::marker{font-weight:700;color:var(--g1)}
+#printArea .gd b{font-weight:700}
+#printArea .gd .k{background:var(--g1soft);border-radius:4px;padding:0 4px;font-weight:700;white-space:nowrap}
+#printArea .gd .full{grid-column:1/-1}
+#printArea .gd .tbl{width:100%;border-collapse:collapse;font-size:9pt}
+#printArea .gd .tbl td,#printArea .gd .tbl th{border-bottom:1px solid #E6E3EA;padding:2.5px 5px;text-align:left;vertical-align:top}
+#printArea .gd .tbl th{background:#F5F4F7;font-weight:800}
+#printArea .gd .foot{margin-top:7px;font-size:8pt;color:#6E6A75;display:flex;justify-content:space-between}
+#printArea .gd .hint{color:#6E6A75;font-size:8.6pt}
+#printArea .gd .hd .lg{width:40px;height:40px;border-radius:8px;background:#fff;color:var(--g1);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:16pt;overflow:hidden;flex:none;margin-right:12px}#printArea .gd .hd .lg img{width:100%;height:100%;object-fit:cover}#printArea .gd .hd .l{display:flex;align-items:center}
+@media print{ @page{size:A4;margin:12mm 12mm 10mm} }`;
+  const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const LIDER = `<div class="cols">
+<div class="box full"><h2><span class="n">0</span>Acesso</h2>
+<ul><li>Abra o link do app no celular → <b>Entrar</b> com e-mail e senha. Primeira vez: use <b>Esqueci a senha</b> para criar a sua.</li>
+<li>Para virar ícone na tela inicial: Chrome ⋮ → <b>Adicionar à tela inicial</b> (iPhone: Safari → Compartilhar → Tela de Início).</li>
+<li>Abas embaixo: <span class="k">Início</span> <span class="k">Contagem</span> <span class="k">Compras</span> <span class="k">Emprést.</span> <span class="k">Perdas</span> <span class="k">Relatórios</span>. O Início mostra o que está pendente para você.</li></ul></div>
+
+<div class="box"><h2><span class="n">1</span>Contagem — toda segunda-feira</h2>
+<ol><li><span class="k">Contagem</span> → abrir a contagem do dia marcado (segunda; no fim do mês pode ser o último dia).</li>
+<li>Digite a quantidade de cada produto. Mais de um lugar (câmara + balcão)? Toque em <b>+</b> e digite a outra parte: o app soma.</li>
+<li>Use a busca para achar o produto. A barra mostra quantos faltam.</li>
+<li><b>Salvar</b> quantas vezes quiser. Só no fim: <b>Fechar contagem</b> → confira o resumo → <b>Confirmar e fechar</b>.</li></ol>
+<p class="hint">Fechou, não reabre: só o gestor. Item com variação muito grande em relação à semana passada fica marcado — confira antes de fechar.</p></div>
+
+<div class="box"><h2><span class="n">2</span>Compras — a cada nota recebida</h2>
+<ol><li><span class="k">Compras</span> → <b>+ Nova compra</b>.</li>
+<li>Fornecedor (escolha da lista ou digite um novo), <b>data de recebimento</b> (não a da emissão), nº da NF e valor total.</li>
+<li><b>+ adicionar categoria</b>: divida o valor da nota por categoria (ex.: AÇAÍ, EMBALAGEM, LIMPEZA). A soma tem que bater com o total.</li>
+<li><b>Lançar compra</b>.</li></ol>
+<p class="hint">Errou? Abra a compra → <b>Pedir edição</b> ou <b>Pedir exclusão</b>; o gestor aprova. Data em semana já fechada vai para aprovação do gestor automaticamente.</p></div>
+
+<div class="box"><h2><span class="n">3</span>Empréstimos entre lojas</h2>
+<p><b>Quem envia lança.</b> <span class="k">Emprést.</span> → <b>+ Novo empréstimo</b> → loja destino, produto, quantidade, data de saída, motivo → <b>Enviar</b>.</p>
+<p><b>Quem recebe confirma.</b> Aparece no Início: <b>Confirmar recebimento</b> (ou <b>Contestar</b> se a quantidade veio diferente).</p>
+<p><b>Devolução:</b> quem recebeu toca em <b>Registrar devolução</b>; quem enviou confirma com <b>Confirmar devolução recebida</b>.</p>
+<p class="hint">O valor sai do seu CMV e entra no da outra loja (ou volta, na devolução). Evento/teste/cortesia: marque <b>Não vai retornar</b>.</p></div>
+
+<div class="box"><h2><span class="n">4</span>Perdas</h2>
+<ol><li><span class="k">Perdas</span> → <b>+ Nova perda</b> → produto, quantidade, data, motivo, observação.</li>
+<li><b>Lançar perda</b> (ou <b>Lançar e adicionar outra</b>).</li></ol>
+<p class="hint">Perda não muda o CMV (a contagem já captura a falta) — serve para explicar <i>por que</i> o CMV subiu. Excluir uma perda pede aprovação do gestor.</p></div>
+
+<div class="box w full"><h2><span class="n">!</span>Regras que evitam retrabalho</h2>
+<div class="cols" style="gap:2px 14px"><ul><li>Conte <b>sempre no dia marcado</b>; se a loja conta na terça, lance na data da segunda.</li><li>Data da compra = <b>data que a mercadoria chegou</b>.</li><li>Não lance perda de produto emprestado: quem recebeu é que lança.</li></ul>
+<ul><li>Custo do produto é do gestor; se achar errado, avise — não ajuste quantidade para compensar.</li><li>Toque em <b>Atualizar dados</b> no Início se outra loja acabou de lançar algo para você.</li><li>Dúvida ou algo estranho: print da tela + mensagem para o gestor.</li></ul></div></div>
+</div>
+`;
+  const GESTOR = `<div class="cols">
+<div class="box full"><h2><span class="n">0</span>Como o CMV é calculado</h2>
+<div class="cols" style="gap:2px 14px"><div><p><b>CMV da semana</b> = Estoque inicial (contagem anterior) + Compras CMV (recebidas na semana) ± Empréstimos (− enviados, + recebidos; invertido na devolução) − Estoque final (contagem da semana).</p><p><b>CMV %</b> = CMV ÷ Faturamento da semana. <b>Mês</b> = da última contagem do mês anterior à última contagem do mês; a soma das semanas fecha o mês.</p></div>
+<div><p><b>Perdas não entram na fórmula</b> (a contagem já captura a falta); servem para explicar variações.</p><p><b>Baixas para evento/teste e cortesia a franquia</b> saem do CMV da loja e vão para as <b>Contas da empresa</b>. Você vê o CMV <b>sem</b> e <b>com</b> baixas; o líder vê só o oficial (sem).</p><p>Semana no calendário: toda segunda; segunda a até 2 dias do fim do mês é absorvida pelo último dia do mês.</p></div></div></div>
+
+<div class="box g"><h2><span class="n">1</span>Rotina semanal (segunda/terça)</h2>
+<ol><li><span class="k">Início</span> com seletor <b>Todas</b>: veja se todas as lojas fecharam a contagem (pendências aparecem por loja).</li>
+<li><span class="k">Gestão</span> → <b>Aprovações pendentes</b>: cada pedido mostra o efeito no CMV. <b>Aprovar</b> / <b>Rejeitar</b>. Fornecedor novo: <b>Manter</b> ou <b>Unificar depois</b>.</li>
+<li><span class="k">Gestão</span> → <b>Faturamento da semana por loja</b>: digite o faturamento e saia do campo (salva na hora). Setas ‹ › para corrigir mês anterior. Sem faturamento, o CMV % da semana não fecha.</li>
+<li><span class="k">Contagem</span>: abra a contagem fechada da loja para conferir item a item. Algo estranho → <b>Solicitar verificação</b> (vai como pendência para o líder) ou <b>Reabrir</b> para ele corrigir.</li></ol></div>
+
+<div class="box"><h2><span class="n">2</span>Empréstimos e baixas</h2>
+<ul><li>O líder envia e o outro líder confirma. Você acompanha em <span class="k">Emprést.</span> por loja ou Todas; contestação aparece em Gestão.</li>
+<li>Marcado <b>Não vai retornar</b> (evento, teste, cortesia): só você faz a <b>Baixa</b>, em Gestão. O valor sai do CMV da loja de origem na data de saída e entra em <b>Contas da empresa</b> (Eventos e testes / Cortesia a franquias), com total da semana e do mês.</li>
+<li>Devolução: quem recebeu registra, quem enviou confirma; o valor volta na semana da devolução.</li></ul></div>
+
+<div class="box"><h2><span class="n">3</span>Cadastros (Gestão → Cadastros)</h2>
+<ul><li><b>Produtos</b>: nome, unidade, custo, categoria e em quais lojas próprias aparece (SIM/NÃO). Alterar custo grava histórico e vale daqui para frente; contagens fechadas mantêm o custo congelado.</li><li><b>Categorias de compra</b> com a marca <b>Compõe CMV</b> (SIM/NÃO) — é isso que separa compra CMV de compra fora.</li><li>Fornecedores, motivos de perda e de empréstimo, líderes (novo líder recebe e-mail para criar a senha).</li></ul>
+<p class="hint">Base grande? O admin sobe a planilha padrão; cadastros do app e da planilha convivem.</p></div>
+
+<div class="box"><h2><span class="n">4</span>Análise e exportação</h2>
+<ul><li><span class="k">Relatórios</span>: CMV por semana e por mês, por loja ou <b>Todas</b> (consolidado), compras CMV × fora, empréstimos, perdas, faturamento.</li><li><span class="k">Gestão</span> → <b>Insights</b>: leitura automática da loja (média, melhor/pior semana, perdas, empréstimos).</li><li><span class="k">Gestão</span> → <b>Exportar</b>: marque Contagem / Compras / Empréstimos / Perdas / Todas → <b>Excel</b> (uma aba por item) ou <b>PDF</b> (relatório para imprimir/enviar).</li></ul></div>
+
+<div class="box w full"><h2><span class="n">!</span>Pontos de atenção</h2>
+<div class="cols" style="gap:2px 14px"><ul><li>Semana com <b>faturamento pendente</b>: o app mostra o CMV da última semana completa até você lançar.</li><li>Compra com data em semana já fechada chega como <b>Compra retroativa</b>: aprovar muda o CMV daquela semana.</li><li>Reabrir contagem só quando necessário: reabre a semana e o CMV muda ao fechar de novo.</li></ul>
+<ul><li>Custo errado no cadastro afeta contagens futuras — corrija cedo.</li><li>Mensal: <b>fechar o mês</b> = todas as contagens do último dia fechadas + faturamentos lançados. Depois, peça ao admin o <b>backup</b>.</li><li>Tudo fica na auditoria (quem, quando, valor anterior/novo).</li></ul></div></div>
+</div>
+`;
+  function html(tipo, emp, versao) {
+    const c1 = emp.c1 || '#4B1F5C', c2 = emp.c2 || '#8CC63F'; const soft = c1 + '22';
+    const titulo = tipo === 'lider' ? 'Guia do Líder de Loja' : 'Guia do Gestor'; const sub = tipo === 'lider' ? 'O app substitui a planilha semanal. Tudo que você lança entra no CMV da sua loja na hora.' : 'Você não lança: aprova, confere, cadastra, lança faturamento e analisa. O líder lança.';
+    const url = location.origin + location.pathname;
+    return `<style>${CSS}</style><div class="gd" style="--g1:${c1};--g2:${c2};--g3:#2E7D4F;--g1soft:${soft}"><div class="hd"><div class="l"><div class="lg">${emp.logo ? `<img src="${emp.logo}">` : esc((emp.nome || 'E')[0].toUpperCase())}</div><div><h1>${esc(emp.nome)} · ${titulo}</h1><div class="sub">${sub}</div></div></div><div class="tag">v${esc(versao)}</div></div>${tipo === 'lider' ? LIDER : GESTOR}<div class="foot" style="margin-top:5px"><span>Acesse: <b>${esc(url)}</b></span><span>${esc(emp.nome)} · Estoque e CMV · ${titulo.toLowerCase()}</span></div></div>`;
+  }
+  function imprimir(tipo, emp, versao) {
+    let area = document.getElementById('printArea'); if (!area) { area = document.createElement('div'); area.id = 'printArea'; document.body.appendChild(area); }
+    area.innerHTML = html(tipo, emp, versao); document.body.classList.add('printing');
+    const fim = () => { document.body.classList.remove('printing'); window.removeEventListener('afterprint', fim); }; window.addEventListener('afterprint', fim);
+    setTimeout(() => { try { window.print(); } catch (e) {} setTimeout(fim, 1500); }, 50);
+  }
+  return { html, imprimir };
+})();
+</script>
+<script src="ops.js?v=2.11"></script>
 <script type="module">
 import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, sendPasswordResetEmail, createUserWithEmailAndPassword, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
@@ -234,6 +343,8 @@ async function renderEmpresa() {
     const c = await contagens(EMPRESA.id);
     body.innerHTML = `<div class="card"><div class="row"><div class="l"><b>${esc(EMPRESA.nome)}</b><span>${c.lojas} loja(s) · ${c.produtos} produtos · ${c.usuarios} usuário(s) · limite de variação ${EMPRESA.limiteVariacao || 50} %</span></div></div><div style="display:flex;gap:8px;padding-top:10px;flex-wrap:wrap"><button class="btn sm" id="btnEditEmp">Editar nome e cores</button><button class="btn sm ghost" id="btnLogo">Logo</button><button class="btn sm ghost" id="btnOperar">Operar como gestor</button></div></div>
     <div class="card"><b style="font-size:14px">Ordem recomendada</b><div class="hint" style="margin-top:6px">1. Importar a planilha padrão (aba Base) — cria lojas, categorias, produtos, fornecedores, motivos e o estoque inicial.<br>2. Criar os usuários (aba Usuários): gestor e líderes.<br>3. Rodar o Teste de permissões (aba Teste, no rodapé).</div></div>`;
+    body.insertAdjacentHTML('beforeend', `<div class="card"><b style="font-size:14px">Guias de uso (PDF)</b><div class="hint" style="margin:6px 0 10px">Uma página cada, já com o nome, as cores e o logo de ${esc(EMPRESA.nome)}. Na janela de impressão escolha "Salvar como PDF".</div><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn sm" id="btnGuiaLider">Guia do líder</button><button class="btn sm ghost" id="btnGuiaGestor">Guia do gestor</button></div></div>`);
+    const versaoApp = ($('admSub').textContent.match(/v([\d.]+)/) || [])[1] || ''; $('btnGuiaLider').onclick = () => GUIAS.imprimir('lider', EMPRESA, versaoApp); $('btnGuiaGestor').onclick = () => GUIAS.imprimir('gestor', EMPRESA, versaoApp);
     $('btnEditEmp').onclick = () => modal({ title: 'Editar empresa', fields: [{ k: 'nome', label: 'Nome', value: EMPRESA.nome }, { k: 'c1', label: 'Cor principal (hex)', value: EMPRESA.c1 || '#4B1F5C' }, { k: 'c2', label: 'Cor secundária (hex)', value: EMPRESA.c2 || '#8CC63F' }, { k: 'limite', label: 'Limite de variação (%)', value: String(EMPRESA.limiteVariacao || 50) }], okLabel: 'Salvar', ok: async v => { if (!v.nome.trim()) return 'Informe o nome.'; await updateDoc(doc(db, 'empresas', EMPRESA.id), { nome: v.nome.trim(), c1: v.c1, c2: v.c2, limiteVariacao: q(v.limite) || 50 }); await carregarEmpresa(EMPRESA.id); toast('Empresa atualizada.'); renderEmpresa(); } });
     $('btnOperar').onclick = () => entrarOps();
     $('btnLogo').onclick = () => { const inp = document.createElement('input'); inp.type = 'file'; inp.accept = 'image/*'; inp.onchange = () => { const f = inp.files[0]; if (!f) return; if (f.size > 300000) return toast('Use uma imagem de até 300 KB.'); const r = new FileReader(); r.onload = async e => { await updateDoc(doc(db, 'empresas', EMPRESA.id), { logo: e.target.result }); toast('Logo salvo.'); await carregarEmpresa(EMPRESA.id); }; r.readAsDataURL(f); }; inp.click(); };
