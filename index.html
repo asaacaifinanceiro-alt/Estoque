@@ -329,7 +329,7 @@ async function importar(d) {
     for (const ln of d.lojasX.filter(l => l.tipo === 'PRÓPRIA').map(l => l.nome)) {
       const itens = {}; d.prods.filter(p => p.lojas.includes(ln)).forEach(p => { itens[prodId[p.nome]] = { parcelas: [0], custo: p.custo }; });
       d.est.filter(x => x.loja === ln && x.qtd && itens[prodId[x.prod]]).forEach(x => { itens[prodId[x.prod]].parcelas = [x.qtd]; });
-      await setDoc(doc(db, E, 'contagens', lojaId[ln] + '_' + data), { lojaId: lojaId[ln], data, status: 'fechada', inicial: true, itens, fechadaPor: user.uid, fechadaEm: serverTimestamp(), autor: user.uid });
+      await setDoc(doc(db, 'empresas', E, 'contagens', lojaId[ln] + '_' + data), { lojaId: lojaId[ln], data, status: 'fechada', inicial: true, itens, fechadaPor: user.uid, fechadaEm: serverTimestamp(), autor: user.uid });
     }
     out.innerHTML = `<div class="okbox">Importado: ${d.lojasX.length} lojas, ${d.prods.length} produtos, contagem inicial de ${data.split('-').reverse().join('/')} nas lojas próprias.</div>`; toast('Base importada.');
   } catch (e) { out.innerHTML = `<div class="badbox">Falha: ${esc(mensagemErro(e))}. Nada parcial deve ser usado; me avise.</div>`; }
