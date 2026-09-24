@@ -78,7 +78,10 @@ input.num{font-size:22px;font-weight:700;text-align:right}
 #picker{position:fixed;inset:0;background:rgba(0,0,0,.35);display:none;z-index:20;align-items:flex-end;justify-content:center}#picker.on{display:flex}#picker .sheet{background:var(--bg);width:100%;max-width:480px;height:88%;border-radius:18px 18px 0 0;display:flex;flex-direction:column;padding:14px 16px 0}#picker .list{flex:1;overflow:auto;margin-top:10px}#picker .it{background:var(--paper);border-radius:10px;padding:12px 14px;margin-bottom:6px;font-size:14px;font-weight:600;cursor:pointer}#picker .it span{display:block;font-size:12px;color:var(--muted);font-weight:500}
 .emp-in{border-left:4px solid var(--warn);padding-left:10px}.emp-out{border-left:4px solid var(--brand);padding-left:10px}.emp-done{border-left:4px solid var(--line);padding-left:10px;opacity:.75}
 td.k{font-weight:800}th{text-align:right}th:first-child,td:first-child{text-align:left}td{text-align:right}
-@media print{nav.bottom,header.top,.btn,#picker,#modal{display:none!important}main{overflow:visible}}
+#printArea{display:none}
+@media print{nav.bottom,header.top,.btn,#picker,#modal{display:none!important}main{overflow:visible}body.printing #app{display:none!important}body.printing #printArea{display:block!important;font:11px/1.35 Arial,sans-serif;color:#000}
+#printArea .ph{display:flex;justify-content:space-between;align-items:baseline;border-bottom:2px solid #000;padding-bottom:6px;margin-bottom:10px;font-size:14px}#printArea .ph span{font-size:11px;color:#444}
+#printArea h2{font-size:13px;margin:14px 0 6px;page-break-after:avoid}#printArea table{width:100%;border-collapse:collapse;page-break-inside:auto}#printArea tr{page-break-inside:avoid}#printArea th,#printArea td{border-bottom:1px solid #ccc;padding:3px 5px;text-align:left;vertical-align:top}#printArea th{background:#eee;font-weight:700}#printArea .n{text-align:right;white-space:nowrap}#printArea tfoot td{font-weight:700;border-top:2px solid #000}#printArea .vazio{color:#666;font-style:italic}}
 </style>
 </head>
 <body>
@@ -205,9 +208,10 @@ async function renderAdmin() {
   renderNavAdm('s-admin'); const m = $('admMain'); m.innerHTML = '<p class="sub"><span class="spin"></span> carregando…</p>';
   await carregarEmpresas();
   const cards = [];
-  for (const e of EMPRESAS) { const c = await contagens(e.id); cards.push(`<div class="card"><div class="row"><div class="l"><b>${esc(e.nome)}</b><span>${c.lojas} loja(s) · ${c.produtos} produtos · ${c.usuarios} usuário(s)</span></div><div class="r"><span style="display:inline-block;width:18px;height:18px;border-radius:5px;background:${esc(e.c1 || '#4B1F5C')}"></span></div></div><div style="display:flex;gap:8px;padding-top:10px;flex-wrap:wrap"><button class="btn sm" data-abrir="${e.id}">Abrir</button></div></div>`); }
+  for (const e of EMPRESAS) { const c = await contagens(e.id); cards.push(`<div class="card"><div class="row"><div class="l"><b>${esc(e.nome)}</b><span>${c.lojas} loja(s) · ${c.produtos} produtos · ${c.usuarios} usuário(s)</span></div><div class="r"><span style="display:inline-block;width:18px;height:18px;border-radius:5px;background:${esc(e.c1 || '#4B1F5C')}"></span></div></div><div style="display:flex;gap:8px;padding-top:10px;flex-wrap:wrap"><button class="btn sm" data-abrir="${e.id}">Abrir</button>${(c.lojas + c.produtos + c.usuarios) === 0 ? `<button class="btn sm ghost" data-excluir="${e.id}">Excluir</button>` : ''}</div></div>`); }
   m.innerHTML = `<h1>Empresas</h1><p class="sub">Logado como ${esc(ficha.nome || user.email)} (admin).</p>${cards.join('') || '<div class="card"><div class="hint">Nenhuma empresa ainda. Crie a primeira.</div></div>'}<button class="btn" id="btnNovaEmp">+ Nova empresa</button>`;
   m.querySelectorAll('[data-abrir]').forEach(b => b.onclick = async () => { await carregarEmpresa(b.dataset.abrir); go('s-empresa'); });
+  m.querySelectorAll('[data-excluir]').forEach(b => b.onclick = () => { const e = EMPRESAS.find(x => x.id === b.dataset.excluir); modal({ title: 'Excluir empresa vazia', text: `Excluir "${esc(e.nome)}"? Ela não tem lojas, produtos nem usuários.`, danger: true, okLabel: 'Excluir', ok: async () => { await apagarBase(e.id); await deleteDoc(doc(db, 'empresas', e.id)); toast('Empresa excluída.'); renderAdmin(); } }); });
   $('btnNovaEmp').onclick = () => modal({ title: 'Nova empresa', fields: [{ k: 'nome', label: 'Nome', ph: 'ex.: ASA' }, { k: 'c1', label: 'Cor principal (hex)', value: '#4B1F5C' }, { k: 'c2', label: 'Cor secundária (hex)', value: '#8CC63F' }, { k: 'limite', label: 'Limite de alerta de variação na contagem (%)', value: '50' }], okLabel: 'Criar', ok: async v => {
     const nome = v.nome.trim(); if (!nome) return 'Informe o nome.'; if (EMPRESAS.some(e => e.nome.toLowerCase() === nome.toLowerCase())) return 'Já existe empresa com esse nome.';
     const id = nome.toLowerCase().normalize('NFD').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || ('emp-' + Date.now());
@@ -350,26 +354,29 @@ async function renderTeste() {
 }
 async function rodarTeste() {
   const out = $('testeOut'); out.innerHTML = '<p class="sub"><span class="spin"></span> testando…</p>'; const res = [];
-  const tenta = async (nome, fn, esperado) => { let ok; try { await fn(); ok = 'permitido'; } catch (e) { ok = (e.code || '').includes('permission-denied') ? 'negado' : 'erro: ' + mensagemErro(e); } res.push({ nome, ok, esperado }); };
+  const criados = []; // tudo que o teste conseguir gravar é apagado no fim
+  const tenta = async (nome, fn, esperado) => { let ok; try { const r = await fn(); if (r && r.ref) criados.push(r.ref); ok = 'permitido'; } catch (e) { ok = (e.code || '').includes('permission-denied') ? 'negado' : 'erro: ' + mensagemErro(e); } res.push({ nome, ok, esperado }); };
+  const grava = async (ref, data) => { await setDoc(ref, data); return { ref }; };
   const E = ficha.empresaId || (EMPRESAS[0] && EMPRESAS[0].id); const p = ficha.perfil; const outraLoja = 'loja-inexistente-x';
   await tenta('Ler a própria ficha', () => getDoc(doc(db, 'usuarios', user.uid)), 'permitido');
   await tenta('Alterar o próprio perfil para ADMIN', () => updateDoc(doc(db, 'usuarios', user.uid), { perfil: 'ADMIN' }), p === 'ADMIN' ? 'negado' : 'negado');
-  await tenta('Criar uma empresa', () => setDoc(doc(db, 'empresas', 'teste-perm-' + Date.now()), { nome: 'x' }), p === 'ADMIN' ? 'permitido' : 'negado');
+  await tenta('Criar uma empresa', () => grava(doc(db, 'empresas', 'teste-perm-' + Date.now()), { nome: 'x' }), p === 'ADMIN' ? 'permitido' : 'negado');
   if (E) {
     await tenta('Ler lojas da empresa', () => getDocs(col(E, 'lojas')), 'permitido');
-    await tenta('Gravar faturamento', () => setDoc(doc(db, 'empresas', E, 'faturamento', 'teste_' + Date.now()), { valor: 1, lojaId: outraLoja, autor: user.uid }), p === 'LIDER' ? 'negado' : 'permitido');
-    await tenta('Criar produto', () => setDoc(doc(db, 'empresas', E, 'produtos', 'teste-' + Date.now()), { nome: 'TESTE', un: 'un', custo: 1, cat: 'x', lojas: {} }), p === 'LIDER' ? 'negado' : 'permitido');
-    await tenta('Lançar compra em loja que não é minha', () => setDoc(doc(db, 'empresas', E, 'compras', 'teste-' + Date.now()), { lojaId: outraLoja, autor: user.uid, total: 1, status: 'lançada' }), p === 'LIDER' ? 'negado' : 'permitido');
+    await tenta('Gravar faturamento', () => grava(doc(db, 'empresas', E, 'faturamento', 'teste_' + Date.now()), { valor: 1, lojaId: outraLoja, autor: user.uid }), p === 'LIDER' ? 'negado' : 'permitido');
+    await tenta('Criar produto', () => grava(doc(db, 'empresas', E, 'produtos', 'teste-' + Date.now()), { nome: 'TESTE', un: 'un', custo: 1, cat: 'x', lojas: {} }), p === 'LIDER' ? 'negado' : 'permitido');
+    await tenta('Lançar compra em loja que não é minha', () => grava(doc(db, 'empresas', E, 'compras', 'teste-' + Date.now()), { lojaId: outraLoja, autor: user.uid, total: 1, status: 'lançada' }), p === 'LIDER' ? 'negado' : 'permitido');
     if (p === 'LIDER' && ficha.lojas && ficha.lojas[0]) {
-      await tenta('Lançar compra na minha loja', () => setDoc(doc(db, 'empresas', E, 'compras', 'teste-' + Date.now()), { lojaId: ficha.lojas[0], autor: user.uid, total: 1, status: 'teste', teste: true }), 'permitido');
-      await tenta('Lançar compra na minha loja fingindo outro autor', () => setDoc(doc(db, 'empresas', E, 'compras', 'teste-' + Date.now()), { lojaId: ficha.lojas[0], autor: 'outro', total: 1, status: 'teste' }), 'negado');
-      await tenta('Baixar um empréstimo (status baixado)', () => setDoc(doc(db, 'empresas', E, 'emprestimos', 'teste-' + Date.now()), { origem: ficha.lojas[0], destino: outraLoja, autor: user.uid, status: 'baixado' }), 'negado');
+      await tenta('Lançar compra na minha loja', () => grava(doc(db, 'empresas', E, 'compras', 'teste-' + Date.now()), { lojaId: ficha.lojas[0], autor: user.uid, total: 1, status: 'teste', teste: true }), 'permitido');
+      await tenta('Lançar compra na minha loja fingindo outro autor', () => grava(doc(db, 'empresas', E, 'compras', 'teste-' + Date.now()), { lojaId: ficha.lojas[0], autor: 'outro', total: 1, status: 'teste' }), 'negado');
+      await tenta('Baixar um empréstimo (status baixado)', () => grava(doc(db, 'empresas', E, 'emprestimos', 'teste-' + Date.now()), { origem: ficha.lojas[0], destino: outraLoja, autor: user.uid, status: 'baixado' }), 'negado');
     }
     await tenta('Ler auditoria', () => getDocs(col(E, 'auditoria')), p === 'LIDER' ? 'negado' : 'permitido');
-    await tenta('Criar ficha de usuário GESTOR', () => setDoc(doc(db, 'usuarios', 'teste-' + Date.now()), { empresaId: E, perfil: 'GESTOR', nome: 'x', email: 'x@x', ativo: true, lojas: [] }), p === 'ADMIN' ? 'permitido' : 'negado');
+    await tenta('Criar ficha de usuário GESTOR', () => grava(doc(db, 'usuarios', 'teste-' + Date.now()), { empresaId: E, perfil: 'GESTOR', nome: 'x', email: 'x@x', ativo: true, lojas: [] }), p === 'ADMIN' ? 'permitido' : 'negado');
   }
+  let limpos = 0; for (const r of criados) { try { await deleteDoc(r); limpos++; } catch (e) {} }
   const falhas = res.filter(r => r.ok !== r.esperado);
-  out.innerHTML = `<div class="${falhas.length ? 'badbox' : 'okbox'}">${falhas.length ? falhas.length + ' resultado(s) diferente(s) do esperado.' : 'Todas as respostas do servidor conferem com o esperado para o perfil ' + p + '.'}</div><div class="card" style="padding:6px 12px 10px"><table><tr><th>Operação</th><th>Servidor</th><th>Esperado</th></tr>${res.map(r => `<tr><td>${esc(r.nome)}</td><td><span class="chip ${r.ok === r.esperado ? 'ok' : 'bad'}">${esc(r.ok)}</span></td><td>${esc(r.esperado)}</td></tr>`).join('')}</table></div><div class="hint">Registros de teste que foram permitidos ficam gravados com marca "teste"; o admin pode apagá-los depois.</div>`;
+  out.innerHTML = `<div class="${falhas.length ? 'badbox' : 'okbox'}">${falhas.length ? falhas.length + ' resultado(s) diferente(s) do esperado.' : 'Todas as respostas do servidor conferem com o esperado para o perfil ' + p + '.'}</div><div class="card" style="padding:6px 12px 10px"><table><tr><th>Operação</th><th>Servidor</th><th>Esperado</th></tr>${res.map(r => `<tr><td>${esc(r.nome)}</td><td><span class="chip ${r.ok === r.esperado ? 'ok' : 'bad'}">${esc(r.ok)}</span></td><td>${esc(r.esperado)}</td></tr>`).join('')}</table></div><div class="hint">Os registros de teste que o servidor permitiu gravar foram apagados em seguida (${limpos} apagado(s)).</div>`;
 }
 
 
