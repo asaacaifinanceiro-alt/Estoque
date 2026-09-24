@@ -260,9 +260,16 @@ async function renderEmpresa() {
     $('btnNovoUser').onclick = () => form(null); body.querySelectorAll('[data-edit]').forEach(b => b.onclick = () => form(users.find(x => x.id === b.dataset.edit)));
   }
   if (empTab === 'base') {
-    body.innerHTML = `<div class="card"><b style="font-size:14px">Importar planilha padrão</b><div class="hint" style="margin:6px 0 10px">Abas: Lojas, Categorias_compra, Categorias_produto, Produtos (Nome · Un/medida · Custo · Categoria · uma coluna SIM/NÃO por loja própria), Fornecedores, Motivos_perda, Motivos_emprestimo, Estoque_inicial. A aba Usuarios é ignorada: crie os usuários na aba Usuários.</div><div class="logo-drop" id="dropXls"><span style="color:var(--brand);font-weight:700">Escolher planilha (.xlsx)</span></div><input type="file" id="xlsFile" accept=".xlsx" style="display:none"><div id="impDiff" style="margin-top:14px"></div></div>`;
+    body.innerHTML = `<div class="card"><b style="font-size:14px">Importar planilha padrão</b><div class="hint" style="margin:6px 0 10px">Abas: Lojas, Categorias_compra, Categorias_produto, Produtos (Nome · Un/medida · Custo · Categoria · uma coluna SIM/NÃO por loja própria), Fornecedores, Motivos_perda, Motivos_emprestimo, Estoque_inicial. A aba Usuarios é ignorada: crie os usuários na aba Usuários.</div><div class="logo-drop" id="dropXls"><span style="color:var(--brand);font-weight:700">Escolher planilha (.xlsx)</span></div><input type="file" id="xlsFile" accept=".xlsx" style="display:none"><div id="impDiff" style="margin-top:14px"></div></div>
+    <div class="card"><b style="font-size:14px">Recomeçar do zero</b><div class="hint" style="margin:6px 0 10px">Apaga lojas, cadastros, contagens e todos os lançamentos desta empresa. Os usuários ficam, mas perdem o vínculo com as lojas (ajuste em Usuários depois de reimportar).</div><button class="btn sm danger" id="btnApagarBase">Apagar toda a base de ${esc(EMPRESA.nome)}</button></div>`;
+    $('btnApagarBase').onclick = () => modal({ title: 'Apagar a base de ' + EMPRESA.nome, text: 'Digite o nome da empresa para confirmar. Isso não pode ser desfeito.', danger: true, fields: [{ k: 'n', label: 'Nome da empresa' }], okLabel: 'Apagar tudo', ok: async v => { if (v.n.trim().toLowerCase() !== EMPRESA.nome.toLowerCase()) return 'Nome não confere.'; await apagarBase(EMPRESA.id); toast('Base apagada. Importe a planilha de novo.'); renderEmpresa(); } });
     $('dropXls').onclick = () => $('xlsFile').click(); $('xlsFile').onchange = () => lerPlanilha($('xlsFile').files[0]);
   }
+}
+async function apagarBase(E) {
+  const subs = ['contagens', 'compras', 'perdas', 'emprestimos', 'faturamento', 'solicitacoes', 'contasEmpresa', 'auditoria', 'fornecedores', 'motivos', 'categoriasCompra', 'categoriasProduto', 'produtos', 'lojas', 'calendario'];
+  for (const sub of subs) { const s = await getDocs(col(E, sub)); let b = writeBatch(db), n = 0; for (const d of s.docs) { if (sub === 'produtos') { const cs = await getDocs(collection(db, 'empresas', E, 'produtos', d.id, 'custos')); for (const c of cs.docs) { b.delete(c.ref); n++; if (n >= 400) { await b.commit(); b = writeBatch(db); n = 0; } } } b.delete(d.ref); n++; if (n >= 400) { await b.commit(); b = writeBatch(db); n = 0; } } if (n) await b.commit(); }
+  const us = await getDocs(query(collection(db, 'usuarios'), where('empresaId', '==', E))); for (const u of us.docs) if (u.data().perfil === 'LIDER') await updateDoc(u.ref, { lojas: [] });
 }
 // cria o login numa instância secundária para não derrubar a sessão do admin
 async function criarLogin(email) {
@@ -273,6 +280,7 @@ async function criarLogin(email) {
 
 /* ---------- importação da planilha padrão ---------- */
 const S = v => String(v ?? '').trim();
+const toISO = v => { if (v === null || v === undefined || v === '') return ''; if (v instanceof Date) return v.toISOString().slice(0, 10); if (typeof v === 'number') { const d = XLSX.SSF.parse_date_code(v); return d ? `${d.y}-${String(d.m).padStart(2, '0')}-${String(d.d).padStart(2, '0')}` : ''; } const s = S(v); let m = s.match(/^(\d{4})-(\d{2})-(\d{2})/); if (m) return `${m[1]}-${m[2]}-${m[3]}`; m = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/); if (m) return `${m[3]}-${m[2].padStart(2, '0')}-${m[1].padStart(2, '0')}`; return ''; };
 async function lerPlanilha(f) {
   if (!f) return; const out = $('impDiff'); out.innerHTML = '<p class="sub"><span class="spin"></span> lendo…</p>';
   try {
@@ -293,12 +301,12 @@ async function lerPlanilha(f) {
     const forn = (sheet('Fornecedores') || []).filter(r => S(r['Nome'])).map(r => ({ nome: S(r['Nome']).toUpperCase(), cnpj: S(r['CNPJ']) }));
     const mp = (sheet('Motivos_perda') || []).filter(r => S(r['Nome']) && !/sistema/i.test(S(r['Nome']))).map(r => S(r['Nome']).toUpperCase());
     const me = (sheet('Motivos_emprestimo') || []).filter(r => S(r['Nome'])).map(r => S(r['Nome']).toUpperCase());
-    const est = (sheet('Estoque_inicial') || []).filter(r => S(r['Loja']) && S(r['Produto'])).map(r => ({ loja: S(r['Loja']), data: S(r['Data']), prod: S(r['Produto']).toUpperCase(), qtd: typeof r['Quantidade'] === 'number' ? r['Quantidade'] : q(r['Quantidade']) }));
+    const est = (sheet('Estoque_inicial') || []).filter(r => S(r['Loja']) && S(r['Produto'])).map(r => ({ loja: S(r['Loja']), data: toISO(r['Data']), prod: S(r['Produto']).toUpperCase(), qtd: typeof r['Quantidade'] === 'number' ? r['Quantidade'] : q(r['Quantidade']) }));
     est.forEach(x => { if (!proprias.includes(x.loja)) erros.push(`Estoque_inicial: loja "${x.loja}" não é própria ou não existe.`); else if (!nomes.has(x.prod)) erros.push(`Estoque_inicial: produto "${x.prod}" não está em Produtos.`); else if (x.qtd && !prods.find(p => p.nome === x.prod).lojas.includes(x.loja)) avisos.push(`Estoque_inicial: ${x.prod} tem quantidade em ${x.loja} mas está NÃO nessa loja (ficará fora da contagem).`); });
-    const datasEst = [...new Set(est.map(x => x.data))]; if (datasEst.length > 1) erros.push('Estoque_inicial com mais de uma data: use uma só (a da contagem inicial).');
+    const datasEst = [...new Set(est.map(x => x.data))]; if (datasEst.length > 1) erros.push('Estoque_inicial com mais de uma data: use uma só (a da contagem inicial).'); if (est.length && !datasEst[0]) erros.push('Estoque_inicial: a coluna Data está vazia ou num formato não reconhecido (use dd/mm/aaaa).');
     // já existe base?
     const jaTem = (await getDocs(collection(db, 'empresas', EMPRESA.id, 'produtos'))).size;
-    const resumo = `<div class="card"><b style="font-size:14px">Prévia</b><div class="hint" style="margin-top:6px">${lojasX.length} lojas (${proprias.length} próprias) · ${catC.length} categorias de compra · ${catP.length} categorias de produto · ${prods.length} produtos · ${forn.length} fornecedores · ${mp.length + me.length} motivos · ${est.length} linhas de estoque inicial${datasEst[0] ? ' (' + datasEst[0] + ')' : ''}</div></div>`;
+    const resumo = `<div class="card"><b style="font-size:14px">Prévia</b><div class="hint" style="margin-top:6px">${lojasX.length} lojas (${proprias.length} próprias) · ${catC.length} categorias de compra · ${catP.length} categorias de produto · ${prods.length} produtos · ${forn.length} fornecedores · ${mp.length + me.length} motivos · ${est.length} linhas de estoque inicial${datasEst[0] ? ' (' + datasEst[0].split('-').reverse().join('/') + ')' : ''}</div></div>`;
     out.innerHTML = (erros.length ? `<div class="badbox">${erros.length} erro(s). Corrija e suba de novo:<br>${erros.slice(0, 12).map(esc).join('<br>')}${erros.length > 12 ? '<br>…' : ''}</div>` : '<div class="okbox">Planilha válida.</div>') + (avisos.length ? `<div class="warnbox">${avisos.length} aviso(s):<br>${avisos.slice(0, 8).map(esc).join('<br>')}${avisos.length > 8 ? '<br>…' : ''}</div>` : '') + resumo + (jaTem ? `<div class="warnbox">Esta empresa já tem ${jaTem} produtos. A importação inicial só pode ser feita em empresa vazia; para atualizar a base use a função "Atualizar base" (fase 3).</div>` : '') + `<button class="btn" id="btnImportar" ${erros.length || jaTem ? 'disabled' : ''}>Importar agora</button>`;
     if (!erros.length && !jaTem) $('btnImportar').onclick = () => importar({ lojasX, catC, catP, prods, forn, mp, me, est, dataEst: datasEst[0] });
   } catch (e) { out.innerHTML = `<div class="badbox">${esc(mensagemErro(e))}</div>`; }
@@ -317,7 +325,7 @@ async function importar(d) {
     for (const m of d.me) if (!['EMPRÉSTIMO', 'DEVOLUÇÃO'].includes(m)) await add(doc(col(E, 'motivos')), { tipo: 'emprestimo', nome: m, sistema: false });
     await flush();
     // estoque inicial: uma contagem fechada por loja própria, com custo congelado
-    const data = d.dataEst ? d.dataEst.split('/').reverse().join('-') : new Date().toISOString().slice(0, 10);
+    const data = d.dataEst || new Date().toISOString().slice(0, 10);
     for (const ln of d.lojasX.filter(l => l.tipo === 'PRÓPRIA').map(l => l.nome)) {
       const itens = {}; d.prods.filter(p => p.lojas.includes(ln)).forEach(p => { itens[prodId[p.nome]] = { parcelas: [0], custo: p.custo }; });
       d.est.filter(x => x.loja === ln && x.qtd && itens[prodId[x.prod]]).forEach(x => { itens[prodId[x.prod]].parcelas = [x.qtd]; });
