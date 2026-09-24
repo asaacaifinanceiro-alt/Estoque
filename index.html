@@ -261,7 +261,9 @@ async function renderEmpresa() {
   }
   if (empTab === 'base') {
     body.innerHTML = `<div class="card"><b style="font-size:14px">Importar planilha padrão</b><div class="hint" style="margin:6px 0 10px">Abas: Lojas, Categorias_compra, Categorias_produto, Produtos (Nome · Un/medida · Custo · Categoria · uma coluna SIM/NÃO por loja própria), Fornecedores, Motivos_perda, Motivos_emprestimo, Estoque_inicial. A aba Usuarios é ignorada: crie os usuários na aba Usuários.</div><div class="logo-drop" id="dropXls"><span style="color:var(--brand);font-weight:700">Escolher planilha (.xlsx)</span></div><input type="file" id="xlsFile" accept=".xlsx" style="display:none"><div id="impDiff" style="margin-top:14px"></div></div>
-    <div class="card"><b style="font-size:14px">Recomeçar do zero</b><div class="hint" style="margin:6px 0 10px">Apaga lojas, cadastros, contagens e todos os lançamentos desta empresa. Os usuários ficam, mas perdem o vínculo com as lojas (ajuste em Usuários depois de reimportar).</div><button class="btn sm danger" id="btnApagarBase">Apagar toda a base de ${esc(EMPRESA.nome)}</button></div>`;
+    <div class="card"><b style="font-size:14px">Recomeçar do zero</b><div class="hint" style="margin:6px 0 10px">Apaga lojas, cadastros, contagens e todos os lançamentos desta empresa. Os usuários ficam, mas perdem o vínculo com as lojas (ajuste em Usuários depois de reimportar).</div><button class="btn sm danger" id="btnApagarBase">Apagar toda a base de ${esc(EMPRESA.nome)}</button></div>
+    <div class="card"><b style="font-size:14px">Motivos fixos do sistema</b><div class="hint" style="margin:6px 0 10px">EMPRÉSTIMO, DEVOLUÇÃO e os motivos de baixa por evento/cortesia. Use se eles sumiram (por exemplo, depois de apagar a base).</div><button class="btn sm ghost" id="btnMotivosFixos">Restaurar motivos fixos</button><div id="motivosFixosOut"></div></div>`;
+    $('btnMotivosFixos').onclick = async () => { const o = $('motivosFixosOut'); o.innerHTML = '<p class="sub"><span class="spin"></span> verificando…</p>'; try { const r = await garantirMotivosFixos(EMPRESA.id); o.innerHTML = `<div class="okbox">${r.criados ? r.criados + ' motivo(s) recriado(s).' : 'Todos os motivos fixos já existem.'}</div>`; } catch (e) { o.innerHTML = `<div class="badbox">${esc(mensagemErro(e))}</div>`; } };
     $('btnApagarBase').onclick = () => modal({ title: 'Apagar a base de ' + EMPRESA.nome, text: 'Digite o nome da empresa para confirmar. Isso não pode ser desfeito.', danger: true, fields: [{ k: 'n', label: 'Nome da empresa' }], okLabel: 'Apagar tudo', ok: async v => { if (v.n.trim().toLowerCase() !== EMPRESA.nome.toLowerCase()) return 'Nome não confere.'; await apagarBase(EMPRESA.id); toast('Base apagada. Importe a planilha de novo.'); renderEmpresa(); } });
     $('dropXls').onclick = () => $('xlsFile').click(); $('xlsFile').onchange = () => lerPlanilha($('xlsFile').files[0]);
   }
@@ -311,6 +313,9 @@ async function lerPlanilha(f) {
     if (!erros.length && !jaTem) $('btnImportar').onclick = () => importar({ lojasX, catC, catP, prods, forn, mp, me, est, dataEst: datasEst[0] });
   } catch (e) { out.innerHTML = `<div class="badbox">${esc(mensagemErro(e))}</div>`; }
 }
+const MOTIVOS_FIXOS = [{ tipo: 'perda', nome: 'Evento/teste (baixa de empréstimo)', sistema: true }, { tipo: 'perda', nome: 'Cortesia a franquia (baixa de empréstimo)', sistema: true }, { tipo: 'emprestimo', nome: 'EMPRÉSTIMO', sistema: false }, { tipo: 'emprestimo', nome: 'DEVOLUÇÃO', sistema: false }];
+// garante os motivos fixos do sistema (recria se faltarem, ex.: depois de "apagar toda a base"); devolve o conjunto tipo|NOME existente
+async function garantirMotivosFixos(E) { const jaTem = new Set((await getDocs(col(E, 'motivos'))).docs.map(x => (x.data().tipo || '') + '|' + String(x.data().nome || '').toUpperCase())); let n = 0; for (const f of MOTIVOS_FIXOS) { const k = f.tipo + '|' + f.nome.toUpperCase(); if (!jaTem.has(k)) { await setDoc(doc(col(E, 'motivos')), f); jaTem.add(k); n++; } } return Object.assign(jaTem, { criados: n }); }
 async function importar(d) {
   const out = $('impDiff'); out.innerHTML = '<p class="sub"><span class="spin"></span> gravando…</p>'; const E = EMPRESA.id;
   try {
@@ -321,8 +326,10 @@ async function importar(d) {
     const prodId = {};
     for (const p of d.prods) { const ref = doc(col(E, 'produtos')); prodId[p.nome] = ref.id; const lojas = {}; p.lojas.forEach(ln => lojas[lojaId[ln]] = true); await add(ref, { nome: p.nome, un: p.un, custo: p.custo, cat: p.cat, lojas, custoDesde: d.dataEst || null }); }
     for (const f of d.forn) await add(doc(col(E, 'fornecedores')), f);
-    for (const m of d.mp) await add(doc(col(E, 'motivos')), { tipo: 'perda', nome: m, sistema: false });
-    for (const m of d.me) if (!['EMPRÉSTIMO', 'DEVOLUÇÃO'].includes(m)) await add(doc(col(E, 'motivos')), { tipo: 'emprestimo', nome: m, sistema: false });
+    await flush();
+    const jaTem = await garantirMotivosFixos(E);
+    for (const m of d.mp) if (!jaTem.has('perda|' + m.toUpperCase())) await add(doc(col(E, 'motivos')), { tipo: 'perda', nome: m, sistema: false });
+    for (const m of d.me) if (!jaTem.has('emprestimo|' + m.toUpperCase())) await add(doc(col(E, 'motivos')), { tipo: 'emprestimo', nome: m, sistema: false });
     await flush();
     // estoque inicial: uma contagem fechada por loja própria, com custo congelado
     const data = d.dataEst || new Date().toISOString().slice(0, 10);
