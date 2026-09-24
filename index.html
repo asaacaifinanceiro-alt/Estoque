@@ -15,7 +15,7 @@
 :root{--brand:#4B1F5C;--brand-2:#8CC63F;--on-brand:#fff;--ink:#1C1A20;--muted:#6E6A75;--line:#E6E3EA;--bg:#F5F4F7;--paper:#fff;--ok:#2E7D4F;--warn:#B7601A;--bad:#B3261E;--ok-bg:#E7F3EC;--warn-bg:#FBEEE3;--bad-bg:#FBE8E7;--info-bg:#EEE9F1}
 *{box-sizing:border-box;margin:0;padding:0}html,body{height:100%}
 body{font-family:'Manrope',system-ui,sans-serif;background:var(--bg);color:var(--ink);font-variant-numeric:tabular-nums;-webkit-font-smoothing:antialiased}
-#app{max-width:480px;margin:0 auto;min-height:100vh;min-height:100dvh;display:flex;flex-direction:column;background:var(--bg)}
+html,body{overflow:hidden}#app{max-width:480px;margin:0 auto;height:100vh;height:100dvh;display:flex;flex-direction:column;background:var(--bg);overflow:hidden}
 .screen{display:none;flex:1;flex-direction:column;min-height:0}.screen.on{display:flex}
 header.top{background:var(--brand);color:var(--on-brand);padding:calc(14px + env(safe-area-inset-top)) 16px 12px;display:flex;align-items:center;gap:12px;flex:none}
 header.top .logo{width:34px;height:34px;border-radius:8px;background:var(--on-brand);color:var(--brand);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px;overflow:hidden;flex:none}
@@ -24,7 +24,7 @@ header.top .who{flex:1;min-width:0}header.top .who b{display:block;font-size:16p
 header.top select{font:inherit;font-size:13px;font-weight:600;color:var(--on-brand);background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.35);border-radius:8px;padding:6px 8px;max-width:150px}
 header.top select option,.login select option{color:#111;background:#fff}
 header.top button.back,header.top button.icon{background:none;border:0;color:var(--on-brand);font:inherit;font-size:22px;line-height:1;padding:0 4px;cursor:pointer}
-main{flex:1;overflow:auto;padding:16px 16px 24px}
+main{flex:1;min-height:0;overflow:auto;-webkit-overflow-scrolling:touch;padding:16px 16px 24px}
 h1{font-size:22px;font-weight:800;letter-spacing:-.01em;margin-bottom:4px}h2{font-size:15px;font-weight:700;margin:22px 0 8px}
 p.sub{color:var(--muted);font-size:13px;margin-bottom:14px}
 .card{background:var(--paper);border-radius:14px;padding:14px 16px;margin-bottom:12px}
@@ -79,7 +79,7 @@ input.num{font-size:22px;font-weight:700;text-align:right}
 .emp-in{border-left:4px solid var(--warn);padding-left:10px}.emp-out{border-left:4px solid var(--brand);padding-left:10px}.emp-done{border-left:4px solid var(--line);padding-left:10px;opacity:.75}
 td.k{font-weight:800}th{text-align:right}th:first-child,td:first-child{text-align:left}td{text-align:right}
 #printArea{display:none}
-@media print{nav.bottom,header.top,.btn,#picker,#modal{display:none!important}main{overflow:visible}body.printing #app{display:none!important}body.printing #printArea{display:block!important;font:11px/1.35 Arial,sans-serif;color:#000}
+@media print{nav.bottom,header.top,.btn,#picker,#modal{display:none!important}main{overflow:visible}html,body{overflow:visible!important;height:auto!important}body.printing #app{display:none!important}body.printing #printArea{display:block!important;font:11px/1.35 Arial,sans-serif;color:#000}
 #printArea .ph{display:flex;justify-content:space-between;align-items:baseline;border-bottom:2px solid #000;padding-bottom:6px;margin-bottom:10px;font-size:14px}#printArea .ph span{font-size:11px;color:#444}
 #printArea h2{font-size:13px;margin:14px 0 6px;page-break-after:avoid}#printArea table{width:100%;border-collapse:collapse;page-break-inside:auto}#printArea tr{page-break-inside:avoid}#printArea th,#printArea td{border-bottom:1px solid #ccc;padding:3px 5px;text-align:left;vertical-align:top}#printArea th{background:#eee;font-weight:700}#printArea .n{text-align:right;white-space:nowrap}#printArea tfoot td{font-weight:700;border-top:2px solid #000}#printArea .vazio{color:#666;font-style:italic}}
 </style>
@@ -87,9 +87,9 @@ td.k{font-weight:800}th{text-align:right}th:first-child,td:first-child{text-alig
 <body>
 <div id="app">
 <section class="screen on" id="s-loading"><div class="login"><div class="mark">E</div><h1>Estoque e CMV</h1><p>Carregando…</p></div></section>
-<section class="screen" id="s-login"><div class="login"><div class="mark" id="loginMark">E</div><h1>Estoque e CMV</h1><p>Entre com o e-mail e a senha cadastrados pela sua empresa.</p><label class="f">E-mail</label><input class="f" id="lEmail" type="email" autocomplete="username" placeholder="voce@empresa.com"><label class="f">Senha</label><input class="f" id="lSenha" type="password" autocomplete="current-password"><div class="err" id="lErr"></div><button class="btn" id="lBtn" onclick="entrar()">Entrar</button><a href="#" onclick="esqueci();return false">Esqueci a senha</a><div class="hint" style="margin-top:18px;opacity:.7">versão 2.8</div></div></section>
+<section class="screen" id="s-login"><div class="login"><div class="mark" id="loginMark">E</div><h1>Estoque e CMV</h1><p>Entre com o e-mail e a senha cadastrados pela sua empresa.</p><label class="f">E-mail</label><input class="f" id="lEmail" type="email" autocomplete="username" placeholder="voce@empresa.com"><label class="f">Senha</label><input class="f" id="lSenha" type="password" autocomplete="current-password"><div class="err" id="lErr"></div><button class="btn" id="lBtn" onclick="entrar()">Entrar</button><a href="#" onclick="esqueci();return false">Esqueci a senha</a><div class="hint" style="margin-top:18px;opacity:.7">versão 2.9</div></div></section>
 <section class="screen" id="s-semficha"><div class="login"><div class="mark">!</div><h1>Sem acesso</h1><p id="semFichaTxt"></p><button class="btn" onclick="sair()">Sair</button></div></section>
-<section class="screen" id="s-admin"><header class="top"><div class="logo" style="background:#fff;color:#222">◆</div><div class="who"><b>Administração</b><span id="admSub">Empresas · v2.8</span></div><button class="icon" onclick="sair()" title="Sair">⎋</button></header><main id="admMain"></main><nav class="bottom" id="navAdm"></nav></section>
+<section class="screen" id="s-admin"><header class="top"><div class="logo" style="background:#fff;color:#222">◆</div><div class="who"><b>Administração</b><span id="admSub">Empresas · v2.9</span></div><button class="icon" onclick="sair()" title="Sair">⎋</button></header><main id="admMain"></main><nav class="bottom" id="navAdm"></nav></section>
 <section class="screen" id="s-empresa"><header class="top"><button class="back" onclick="go('s-admin')">‹</button><div class="who"><b id="empTit">Empresa</b><span id="empSub"></span></div></header><main id="empMain"></main><nav class="bottom"></nav></section>
 <section class="screen" id="s-teste"><header class="top"><button class="back" onclick="go('s-admin')">‹</button><div class="who"><b>Teste de permissões</b><span>contra o banco real</span></div></header><main id="testeMain"></main><nav class="bottom"></nav></section>
 <section class="screen" id="s-inicio"><header class="top"><div class="logo hdrLogo">E</div><div class="who"><b id="hdrName"></b><span id="hdrRole"></span></div><select class="lojaSel"></select><button class="icon" onclick="sair()" title="Sair">⎋</button></header><main id="inicioMain"></main><nav class="bottom ops"></nav></section>
@@ -131,7 +131,7 @@ td.k{font-weight:800}th{text-align:right}th:first-child,td:first-child{text-alig
 <div id="modal"><div class="card" id="modalBox"></div></div>
 <div class="toast" id="toast"></div>
 </div>
-<script src="ops.js"></script>
+<script src="ops.js?v=2.9"></script>
 <script type="module">
 import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, sendPasswordResetEmail, createUserWithEmailAndPassword, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
@@ -162,7 +162,7 @@ window.goAdmin = () => go('s-admin');
 onAuthStateChanged(auth, async u => {
   user = u; if (!u) { ficha = null; go('s-login'); return; } go('s-loading');
   try {
-    const snap = await getDoc(doc(db, 'usuarios', u.uid)); if (!snap.exists()) { $('semFichaTxt').textContent = 'Seu login existe, mas ainda não foi vinculado a uma empresa. Peça ao administrador.'; go('s-semficha'); return; }
+    let snap = await getDoc(doc(db, 'usuarios', u.uid)); if (!snap.exists() && u.email) { const cv = await getDoc(doc(db, 'convites', u.email.toLowerCase())); if (cv.exists()) { const c = cv.data(); await setDoc(doc(db, 'usuarios', u.uid), { nome: c.nome, email: c.email, perfil: c.perfil, lojas: c.lojas || [], ativo: c.ativo === true, empresaId: c.empresaId, criadoPor: c.criadoPor || null, criadoEm: serverTimestamp() }); await deleteDoc(cv.ref); snap = await getDoc(doc(db, 'usuarios', u.uid)); } } if (!snap.exists()) { $('semFichaTxt').textContent = 'Seu login existe, mas ainda não foi vinculado a uma empresa. Peça ao administrador.'; go('s-semficha'); return; }
     ficha = snap.data(); if (ficha.ativo === false) { $('semFichaTxt').textContent = 'Seu acesso está desativado. Fale com o gestor.'; go('s-semficha'); return; }
     if (ficha.perfil === 'ADMIN') { await carregarEmpresas(); go('s-admin'); }
     else { await carregarEmpresa(ficha.empresaId); if (!EMPRESA) { $('semFichaTxt').textContent = 'Sua ficha aponta para uma empresa que não existe. Peça ao administrador.'; go('s-semficha'); return; } await entrarOps(); }
@@ -188,7 +188,7 @@ function makeDB(E) { return {
   async custoHistorico(pid, data) { await addDoc(collection(db, 'empresas', E, 'produtos', pid, 'custos'), limpo(data)); },
   async usuarios() { return rows(await getDocs(query(collection(db, 'usuarios'), where('empresaId', '==', E)))); },
   async salvarUsuario(uid, dados) { await updateDoc(doc(db, 'usuarios', uid), limpo(dados)); },
-  async criarUsuario(dados) { const uid = await criarLogin(dados.email); await setDoc(doc(db, 'usuarios', uid), limpo({ ...dados, criadoPor: user.uid })); await sendPasswordResetEmail(auth, dados.email); },
+  async criarUsuario(dados) { return criarFicha(dados.email.toLowerCase(), limpo(dados)); },
 }; }
 async function entrarOps() { if (!EMPRESA) return; const ctx = { uid: user.uid, ficha: ficha.perfil === 'ADMIN' ? { ...ficha, empresaId: EMPRESA.id } : ficha, empresa: EMPRESA }; await OPS.iniciar(makeDB(EMPRESA.id), ctx); }
 
@@ -253,15 +253,16 @@ async function renderEmpresa() {
     const [us, ls] = await Promise.all([getDocs(query(collection(db, 'usuarios'), where('empresaId', '==', EMPRESA.id))), getDocs(collection(db, 'empresas', EMPRESA.id, 'lojas'))]);
     const lojas = ls.docs.map(d => ({ id: d.id, ...d.data() })).filter(l => l.tipo === 'PRÓPRIA').sort((a, b) => a.nome.localeCompare(b.nome)); const nomeLoja = id => (lojas.find(l => l.id === id) || {}).nome || id;
     const users = us.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => (a.nome || '').localeCompare(b.nome || ''));
-    body.innerHTML = `<div class="card">${users.map(u => `<div class="row"><div class="l"><b>${esc(u.nome)}</b><span>${esc(u.email)} · ${u.perfil === 'LIDER' ? 'líder · ' + (u.lojas || []).map(nomeLoja).join(', ') : 'gestor'}</span></div><div class="r"><span class="chip ${u.ativo ? 'ok' : 'mute'}">${u.ativo ? 'ativo' : 'inativo'}</span><br><button class="btn sm ghost" style="margin-top:4px" data-edit="${u.id}">Editar</button></div></div>`).join('') || '<div class="hint">Nenhum usuário. Crie o gestor e os líderes.</div>'}</div><button class="btn" id="btnNovoUser">+ Novo usuário</button><div class="hint">O usuário recebe um e-mail para definir a própria senha.</div>`;
+    body.innerHTML = `<div class="card">${users.map(u => `<div class="row"><div class="l"><b>${esc(u.nome)}</b><span>${esc(u.email)} · ${u.perfil === 'LIDER' ? 'líder · ' + (u.lojas || []).map(nomeLoja).join(', ') : 'gestor'}</span></div><div class="r"><span class="chip ${u.ativo ? 'ok' : 'mute'}">${u.ativo ? 'ativo' : 'inativo'}</span><br><button class="btn sm ghost" style="margin-top:4px" data-edit="${u.id}">Editar</button> <button class="btn sm ghost" style="margin-top:4px" data-del="${u.id}">Excluir</button></div></div>`).join('') || '<div class="hint">Nenhum usuário. Crie o gestor e os líderes.</div>'}</div><button class="btn" id="btnNovoUser">+ Novo usuário</button><div class="hint">O usuário recebe um e-mail para definir a própria senha. Excluir remove o acesso ao app na hora; o login (e-mail) continua existindo no Firebase e pode ser reaproveitado ao cadastrar o mesmo e-mail de novo.</div>`;
     const form = (u) => modal({ title: u ? 'Editar usuário' : 'Novo usuário', fields: [{ k: 'nome', label: 'Nome', value: u ? u.nome : '' }, { k: 'email', label: 'E-mail', type: 'email', value: u ? u.email : '' }, { k: 'perfil', label: 'Perfil', type: 'select', options: ['LIDER', 'GESTOR'], value: u ? u.perfil : 'LIDER' }, ...lojas.map(l => ({ k: 'l_' + l.id, label: 'Acesso a ' + l.nome + '? (líder)', type: 'select', options: ['SIM', 'NÃO'], value: u && (u.lojas || []).includes(l.id) ? 'SIM' : 'NÃO' })), { k: 'ativo', label: 'Situação', type: 'select', options: ['ATIVO', 'INATIVO'], value: u && u.ativo === false ? 'INATIVO' : 'ATIVO' }], okLabel: u ? 'Salvar' : 'Criar e enviar e-mail', ok: async v => {
       const nome = v.nome.trim(), email = v.email.trim().toLowerCase(); if (!nome) return 'Informe o nome.'; if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return 'E-mail inválido.';
       const sel = lojas.filter(l => v['l_' + l.id] === 'SIM').map(l => l.id); if (v.perfil === 'LIDER' && !sel.length) return 'Líder precisa de pelo menos uma loja.';
       const dados = { nome, email, perfil: v.perfil, lojas: v.perfil === 'LIDER' ? sel : [], ativo: v.ativo === 'ATIVO', empresaId: EMPRESA.id };
       if (u) { await updateDoc(doc(db, 'usuarios', u.id), dados); toast('Usuário atualizado.'); }
-      else { if (users.some(x => x.email === email)) return 'Este e-mail já está cadastrado nesta empresa.'; const uid = await criarLogin(email); await setDoc(doc(db, 'usuarios', uid), { ...dados, criadoEm: serverTimestamp(), criadoPor: user.uid }); await sendPasswordResetEmail(auth, email); toast('Usuário criado. E-mail para definir a senha enviado a ' + email + '.'); }
+      else { if (users.some(x => x.email === email)) return 'Este e-mail já está cadastrado nesta empresa.'; const r = await criarFicha(email, dados); toast(r === 'convite' ? 'Este e-mail já tinha login: o acesso será ativado quando a pessoa entrar no app (e-mail de senha enviado).' : 'Usuário criado. E-mail para definir a senha enviado a ' + email + '.'); }
       renderEmpresa(); } });
     $('btnNovoUser').onclick = () => form(null); body.querySelectorAll('[data-edit]').forEach(b => b.onclick = () => form(users.find(x => x.id === b.dataset.edit)));
+    body.querySelectorAll('[data-del]').forEach(b => b.onclick = () => { const u = users.find(x => x.id === b.dataset.del); if (u.id === user.uid) return toast('Você não pode excluir a si mesmo.'); modal({ title: 'Excluir usuário', text: `Excluir <b>${esc(u.nome)}</b> (${esc(u.email)})? A pessoa perde o acesso imediatamente. Os lançamentos feitos por ela continuam no histórico.`, danger: true, okLabel: 'Excluir', ok: async () => { await deleteDoc(doc(db, 'usuarios', u.id)); toast('Usuário excluído.'); renderEmpresa(); } }); });
   }
   if (empTab === 'base') {
     body.innerHTML = `<div class="card"><b style="font-size:14px">Importar planilha padrão</b><div class="hint" style="margin:6px 0 10px">Abas: Lojas, Categorias_compra, Categorias_produto, Produtos (Nome · Un/medida · Custo · Categoria · uma coluna SIM/NÃO por loja própria), Fornecedores, Motivos_perda, Motivos_emprestimo, Estoque_inicial. A aba Usuarios é ignorada: crie os usuários na aba Usuários.</div><div class="logo-drop" id="dropXls"><span style="color:var(--brand);font-weight:700">Escolher planilha (.xlsx)</span></div><input type="file" id="xlsFile" accept=".xlsx" style="display:none"><div id="impDiff" style="margin-top:14px"></div></div>
@@ -278,6 +279,14 @@ async function apagarBase(E) {
   const us = await getDocs(query(collection(db, 'usuarios'), where('empresaId', '==', E))); for (const u of us.docs) if (u.data().perfil === 'LIDER') await updateDoc(u.ref, { lojas: [] });
 }
 // cria o login numa instância secundária para não derrubar a sessão do admin
+// cria login + ficha; se o e-mail já tem login (ex.: usuário excluído e recadastrado), grava um convite que vira ficha no próximo login da pessoa
+async function criarFicha(email, dados) {
+  let uid = null; try { uid = await criarLogin(email); } catch (e) { if (!(e.code || '').includes('auth/email-already-in-use')) throw e; }
+  if (uid) { await setDoc(doc(db, 'usuarios', uid), { ...dados, criadoEm: serverTimestamp(), criadoPor: user.uid }); }
+  else { await setDoc(doc(db, 'convites', email), { ...dados, criadoEm: serverTimestamp(), criadoPor: user.uid }); }
+  try { await sendPasswordResetEmail(auth, email); } catch (e) {}
+  return uid ? 'criado' : 'convite';
+}
 async function criarLogin(email) {
   const sec = getApps().find(a => a.name === 'sec') || initializeApp(firebaseConfig, 'sec'); const a2 = getAuth(sec);
   const senhaTemp = 'Tmp!' + Math.random().toString(36).slice(2, 10) + Math.random().toString(36).slice(2, 6).toUpperCase();
