@@ -355,8 +355,9 @@ async function renderTeste() {
 async function rodarTeste() {
   const out = $('testeOut'); out.innerHTML = '<p class="sub"><span class="spin"></span> testando…</p>'; const res = [];
   const criados = []; // tudo que o teste conseguir gravar é apagado no fim
-  const tenta = async (nome, fn, esperado) => { let ok; try { const r = await fn(); if (r && r.ref) criados.push(r.ref); ok = 'permitido'; } catch (e) { ok = (e.code || '').includes('permission-denied') ? 'negado' : 'erro: ' + mensagemErro(e); } res.push({ nome, ok, esperado }); };
-  const grava = async (ref, data) => { await setDoc(ref, data); return { ref }; };
+  const tenta = async (nome, fn, esperado) => { let ok; try { await fn(); ok = 'permitido'; } catch (e) { ok = (e.code || '').includes('permission-denied') ? 'negado' : 'erro: ' + mensagemErro(e); } res.push({ nome, ok, esperado }); };
+  // só o que o próprio teste GRAVOU entra na lista de limpeza (leituras e updates nunca entram)
+  const grava = async (ref, data) => { await setDoc(ref, data); criados.push(ref); };
   const E = ficha.empresaId || (EMPRESAS[0] && EMPRESAS[0].id); const p = ficha.perfil; const outraLoja = 'loja-inexistente-x';
   await tenta('Ler a própria ficha', () => getDoc(doc(db, 'usuarios', user.uid)), 'permitido');
   await tenta('Alterar o próprio perfil para ADMIN', () => updateDoc(doc(db, 'usuarios', user.uid), { perfil: 'ADMIN' }), p === 'ADMIN' ? 'negado' : 'negado');
@@ -374,7 +375,7 @@ async function rodarTeste() {
     await tenta('Ler auditoria', () => getDocs(col(E, 'auditoria')), p === 'LIDER' ? 'negado' : 'permitido');
     await tenta('Criar ficha de usuário GESTOR', () => grava(doc(db, 'usuarios', 'teste-' + Date.now()), { empresaId: E, perfil: 'GESTOR', nome: 'x', email: 'x@x', ativo: true, lojas: [] }), p === 'ADMIN' ? 'permitido' : 'negado');
   }
-  let limpos = 0; for (const r of criados) { try { await deleteDoc(r); limpos++; } catch (e) {} }
+  let limpos = 0; for (const r of criados) { if (r.path === 'usuarios/' + user.uid) continue; try { await deleteDoc(r); limpos++; } catch (e) {} }
   const falhas = res.filter(r => r.ok !== r.esperado);
   out.innerHTML = `<div class="${falhas.length ? 'badbox' : 'okbox'}">${falhas.length ? falhas.length + ' resultado(s) diferente(s) do esperado.' : 'Todas as respostas do servidor conferem com o esperado para o perfil ' + p + '.'}</div><div class="card" style="padding:6px 12px 10px"><table><tr><th>Operação</th><th>Servidor</th><th>Esperado</th></tr>${res.map(r => `<tr><td>${esc(r.nome)}</td><td><span class="chip ${r.ok === r.esperado ? 'ok' : 'bad'}">${esc(r.ok)}</span></td><td>${esc(r.esperado)}</td></tr>`).join('')}</table></div><div class="hint">Os registros de teste que o servidor permitiu gravar foram apagados em seguida (${limpos} apagado(s)).</div>`;
 }
